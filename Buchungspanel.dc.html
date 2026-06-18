@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="width:100%; font-family:'Poppins',system-ui,sans-serif;">
+  <div style="background:rgba(255,255,255,.62); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border:1px solid rgba(18,38,66,.12); border-radius:22px; padding:clamp(20px,3vw,30px); box-shadow:0 30px 70px rgba(14,27,46,.10), inset 0 1px 0 rgba(255,255,255,.7);">
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:22px;">
+      <div>
+        <div style="font-size:11px; letter-spacing:.24em; text-transform:uppercase; color:#db0a30; font-weight:600;">Erstgespräch</div>
+        <div style="font-size:19px; font-weight:600; color:#0e1b2e; letter-spacing:-.01em; margin-top:5px;">Wunschtermin wählen</div>
+      </div>
+      <div style="width:44px;height:44px;border-radius:13px;display:grid;place-items:center;background:rgba(219,10,48,.08);border:1px solid rgba(219,10,48,.25);color:#db0a30;font-weight:700;font-size:13px;">01</div>
+    </div>
+
+    <sc-if value="{{ done }}" hint-placeholder-val="{{ false }}">
+      <div style="text-align:center; padding:22px 0;">
+        <div style="width:54px;height:54px;margin:0 auto 14px;border-radius:50%;display:grid;place-items:center;background:rgba(219,10,48,.10);border:1px solid rgba(219,10,48,.3);color:#db0a30;font-size:24px;">✓</div>
+        <div style="font-size:17px;font-weight:600;color:#0e1b2e;">Termin angefragt</div>
+        <div style="color:#46566e;font-size:14px;margin-top:8px;">{{ summary }}</div>
+        <button type="button" onClick="{{ reset }}" style="margin-top:18px;background:none;border:0;color:#db0a30;font-weight:600;font-size:13px;cursor:pointer;font-family:inherit;">Neuen Termin wählen</button>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ notDone }}" hint-placeholder-val="{{ true }}">
+      <div>
+        <div style="font-size:12px;letter-spacing:.05em;color:#69788e;font-weight:600;text-transform:uppercase;margin-bottom:11px;">1 · Datum</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(76px,1fr));gap:8px;">
+          <sc-for list="{{ dates }}" as="d" hint-placeholder-count="6">
+            <button type="button" onClick="{{ d.onClick }}" style="{{ d.style }}">
+              <span style="font-size:13px;font-weight:600;color:#0e1b2e;">{{ d.label }}</span>
+              <span style="font-size:11px;color:#69788e;">{{ d.sub }}</span>
+            </button>
+          </sc-for>
+        </div>
+
+        <div style="font-size:12px;letter-spacing:.05em;color:#69788e;font-weight:600;text-transform:uppercase;margin:20px 0 11px;">2 · Uhrzeit</div>
+        <div style="{{ timeWrapStyle }}">
+          <sc-for list="{{ times }}" as="t" hint-placeholder-count="5">
+            <button type="button" onClick="{{ t.onClick }}" style="{{ t.style }}">{{ t.label }}</button>
+          </sc-for>
+        </div>
+
+        <button type="button" onClick="{{ confirm }}" style="{{ confirmStyle }}">Termin vereinbaren</button>
+        <div style="margin-top:12px;text-align:center;font-size:12px;color:#8a98ab;">Unverbindlich · Antwort innerhalb von 24 h</div>
+      </div>
+    </sc-if>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { date:null, time:null, done:false };
+
+  buildDates(){
+    const wd=['So','Mo','Di','Mi','Do','Fr','Sa'];
+    const mo=['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+    const out=[]; let cur=new Date(Date.now()+86400000); let n=0;
+    while(n<6){
+      const dy=cur.getDay();
+      if(dy!==0 && dy!==6){
+        out.push({ val:cur.toISOString().slice(0,10), label:wd[dy]+' '+cur.getDate(), sub:mo[cur.getMonth()] });
+        n++;
+      }
+      cur=new Date(cur.getTime()+86400000);
+    }
+    return out;
+  }
+
+  dateChipStyle(sel){
+    const base='display:flex;flex-direction:column;gap:2px;align-items:center;justify-content:center;padding:12px 6px;border-radius:13px;cursor:pointer;transition:border-color .2s,background .2s,box-shadow .2s;font-family:inherit;';
+    return sel
+      ? base+'border:1px solid #db0a30;background:rgba(219,10,48,.08);box-shadow:0 0 0 1px #db0a30;'
+      : base+'border:1px solid rgba(18,38,66,.14);background:rgba(255,255,255,.7);';
+  }
+  timeChipStyle(sel){
+    const base='padding:11px 6px;border-radius:11px;cursor:pointer;transition:border-color .2s,background .2s,box-shadow .2s;font-family:inherit;font-size:13px;font-weight:600;color:#0e1b2e;text-align:center;';
+    return sel
+      ? base+'border:1px solid #db0a30;background:rgba(219,10,48,.08);box-shadow:0 0 0 1px #db0a30;'
+      : base+'border:1px solid rgba(18,38,66,.14);background:rgba(255,255,255,.7);';
+  }
+
+  renderVals(){
+    const dlist=this.buildDates();
+    const dates=dlist.map(d=>({ label:d.label, sub:d.sub, style:this.dateChipStyle(this.state.date===d.val), onClick:()=>this.setState({date:d.val}) }));
+    const timeVals=['09:00','10:30','13:00','14:30','16:00'];
+    const times=timeVals.map(t=>({ label:t, style:this.timeChipStyle(this.state.time===t), onClick:()=>this.setState({time:t}) }));
+
+    const hasDate=!!this.state.date;
+    const timeWrapStyle='display:grid;grid-template-columns:repeat(auto-fit,minmax(68px,1fr));gap:8px;transition:opacity .3s;'+(hasDate?'':'opacity:.4;pointer-events:none;');
+
+    const canConfirm=!!(this.state.date && this.state.time);
+    const confirmStyle='margin-top:22px;width:100%;border:0;border-radius:11px;padding:15px;font-family:inherit;font-weight:600;font-size:15px;transition:.2s;'+(canConfirm
+      ? 'background:#db0a30;color:#fff;box-shadow:0 12px 28px rgba(219,10,48,.28);cursor:pointer;'
+      : 'background:rgba(18,38,66,.08);color:#9aa7ba;cursor:not-allowed;');
+
+    let summary='';
+    if(this.state.done){
+      const d=dlist.find(x=>x.val===this.state.date);
+      summary=(d? d.label+' '+d.sub : '')+' · '+this.state.time+' Uhr';
+    }
+
+    return {
+      dates, times, timeWrapStyle, confirmStyle,
+      done:this.state.done, notDone:!this.state.done, summary,
+      confirm:()=>{ if(this.state.date && this.state.time) this.setState({done:true}); },
+      reset:()=>this.setState({date:null,time:null,done:false})
+    };
+  }
+}
+</script>
+</body>
+</html>
