@@ -88,44 +88,43 @@
   var CSS = '\
   .cc-root{font-family:"Poppins",system-ui,sans-serif;}\
   .cc-banner{position:fixed;left:0;right:0;bottom:0;z-index:9500;display:flex;justify-content:center;padding:18px;pointer-events:none;}\
-  .cc-card{pointer-events:auto;width:min(960px,100%);background:rgba(10,16,30,.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(150,200,235,.20);border-radius:6px;box-shadow:0 30px 80px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.05);overflow:hidden;}\
-  .cc-hazard{height:5px;width:100%;background-image:repeating-linear-gradient(45deg,#ffce2e 0 14px,#0b0e16 14px 28px);}\
+  .cc-card{pointer-events:auto;width:min(960px,100%);background:rgba(255,255,255,.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(18,38,66,.12);border-radius:8px;box-shadow:0 26px 70px rgba(20,40,70,.18);overflow:hidden;}\
+  .cc-hazard{height:2px;width:100%;background:linear-gradient(90deg,transparent,#db0a30 18%,#db0a30 82%,transparent);}\
   .cc-body{padding:22px 26px 24px;display:grid;grid-template-columns:1.5fr auto;gap:26px;align-items:center;}\
-  .cc-eyebrow{display:inline-flex;align-items:center;gap:9px;font-family:"Poppins",sans-serif;font-weight:600;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:#1fe6d2;margin-bottom:10px;}\
-  .cc-eyebrow::before{content:"";width:22px;height:1px;background:linear-gradient(90deg,transparent,#1fe6d2);}\
-  .cc-title{font-family:"Poppins",sans-serif;font-weight:600;font-size:18px;color:#eaf6ff;margin:0 0 7px;letter-spacing:-.01em;}\
-  .cc-text{color:#aebfd4;font-size:13.5px;line-height:1.6;margin:0;font-weight:300;}\
-  .cc-text a{color:#1fe6d2;text-decoration:underline;text-underline-offset:2px;}\
+  .cc-eyebrow{font-family:"EB Garamond",Georgia,serif;font-style:italic;font-weight:500;font-size:18px;color:#db0a30;margin-bottom:8px;}\
+  .cc-title{font-family:"Poppins",sans-serif;font-weight:600;font-size:18px;color:#0e1b2e;margin:0 0 7px;letter-spacing:-.01em;}\
+  .cc-text{color:#46566e;font-size:13.5px;line-height:1.6;margin:0;}\
+  .cc-text a{color:#db0a30;text-decoration:underline;text-underline-offset:2px;}\
   .cc-actions{display:flex;flex-direction:column;gap:10px;min-width:188px;}\
   .cc-btn{font-family:"Poppins",sans-serif;font-weight:600;font-size:13.5px;letter-spacing:.01em;padding:13px 20px;border-radius:2px;cursor:pointer;border:0;text-align:center;transition:transform .2s,box-shadow .25s,background .25s,color .2s;white-space:nowrap;}\
   .cc-btn:active{transform:translateY(1px);}\
-  .cc-accept{background:#ff2f86;color:#0a0610;box-shadow:0 0 0 1px color-mix(in srgb,#ff2f86 60%,transparent),0 8px 26px color-mix(in srgb,#ff2f86 40%,transparent);}\
-  .cc-accept:hover{box-shadow:0 0 0 1px #ff2f86,0 10px 36px color-mix(in srgb,#ff2f86 55%,transparent);}\
-  .cc-reject{background:rgba(180,220,255,.05);color:#eaf6ff;box-shadow:inset 0 0 0 1px rgba(150,200,235,.28);}\
-  .cc-reject:hover{box-shadow:inset 0 0 0 1px #1fe6d2;color:#fff;}\
-  .cc-settings{background:transparent;color:#7e93ad;font-size:12.5px;padding:6px;letter-spacing:.04em;}\
-  .cc-settings:hover{color:#1fe6d2;}\
-  .cc-overlay{position:fixed;inset:0;z-index:9600;background:rgba(4,7,13,.72);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:20px;}\
-  .cc-modal{width:min(560px,100%);max-height:88vh;overflow:auto;background:rgba(10,16,30,.97);border:1px solid rgba(150,200,235,.20);border-radius:7px;box-shadow:0 40px 100px rgba(0,0,0,.7);}\
+  .cc-accept{background:#db0a30;color:#fff;box-shadow:0 8px 26px color-mix(in srgb,#db0a30 38%,transparent);}\
+  .cc-accept:hover{box-shadow:0 10px 36px color-mix(in srgb,#db0a30 52%,transparent);}\
+  .cc-reject{background:#fff;color:#0e1b2e;box-shadow:inset 0 0 0 1px rgba(18,38,66,.22);}\
+  .cc-reject:hover{box-shadow:inset 0 0 0 1px #db0a30;color:#db0a30;}\
+  .cc-settings{background:transparent;color:#69788e;font-size:12.5px;padding:6px;letter-spacing:.04em;}\
+  .cc-settings:hover{color:#db0a30;}\
+  .cc-overlay{position:fixed;inset:0;z-index:9600;background:rgba(14,27,46,.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:20px;}\
+  .cc-modal{width:min(560px,100%);max-height:88vh;overflow:auto;background:#fff;border:1px solid rgba(18,38,66,.12);border-radius:10px;box-shadow:0 40px 100px rgba(20,40,70,.3);}\
   .cc-modal-body{padding:28px 30px 30px;}\
-  .cc-modal h2{font-family:"Poppins",sans-serif;font-weight:600;font-size:22px;color:#eaf6ff;margin:0 0 6px;letter-spacing:-.01em;}\
-  .cc-modal p.cc-lead{color:#aebfd4;font-size:13.5px;line-height:1.6;margin:0 0 22px;font-weight:300;}\
-  .cc-cat{display:flex;gap:16px;align-items:flex-start;padding:18px 0;border-top:1px solid rgba(140,180,220,.14);}\
-  .cc-cat:last-of-type{border-bottom:1px solid rgba(140,180,220,.14);}\
+  .cc-modal h2{font-family:"Poppins",sans-serif;font-weight:700;font-size:22px;color:#0e1b2e;margin:0 0 6px;letter-spacing:-.01em;}\
+  .cc-modal p.cc-lead{color:#46566e;font-size:13.5px;line-height:1.6;margin:0 0 22px;}\
+  .cc-cat{display:flex;gap:16px;align-items:flex-start;padding:18px 0;border-top:1px solid rgba(18,38,66,.10);}\
+  .cc-cat:last-of-type{border-bottom:1px solid rgba(18,38,66,.10);}\
   .cc-cat-info{flex:1;}\
-  .cc-cat-name{font-family:"Poppins",sans-serif;font-weight:600;font-size:15px;color:#eaf6ff;margin:0 0 4px;}\
-  .cc-cat-desc{color:#7e93ad;font-size:12.5px;line-height:1.55;margin:0;font-weight:300;}\
-  .cc-switch{flex:none;position:relative;width:46px;height:26px;border-radius:40px;background:rgba(140,190,230,.14);box-shadow:inset 0 0 0 1px rgba(150,200,235,.22);cursor:pointer;transition:background .22s;margin-top:2px;}\
-  .cc-switch.on{background:#1fe6d2;box-shadow:inset 0 0 0 1px #1fe6d2,0 0 16px color-mix(in srgb,#1fe6d2 50%,transparent);}\
+  .cc-cat-name{font-family:"Poppins",sans-serif;font-weight:600;font-size:15px;color:#0e1b2e;margin:0 0 4px;}\
+  .cc-cat-desc{color:#69788e;font-size:12.5px;line-height:1.55;margin:0;}\
+  .cc-switch{flex:none;position:relative;width:46px;height:26px;border-radius:40px;background:rgba(18,38,66,.14);box-shadow:inset 0 0 0 1px rgba(18,38,66,.16);cursor:pointer;transition:background .22s;margin-top:2px;}\
+  .cc-switch.on{background:#db0a30;box-shadow:inset 0 0 0 1px #db0a30,0 0 16px color-mix(in srgb,#db0a30 40%,transparent);}\
   .cc-switch.locked{cursor:not-allowed;opacity:.7;}\
-  .cc-switch .cc-knob{position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#0a0f1f;transition:left .22s;}\
-  .cc-switch.on .cc-knob{left:23px;background:#04121a;}\
+  .cc-switch .cc-knob{position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:left .22s;}\
+  .cc-switch.on .cc-knob{left:23px;background:#fff;}\
   .cc-modal-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px;}\
   .cc-modal-actions .cc-btn{flex:1 1 auto;}\
-  .cc-tag{font-family:"Poppins",sans-serif;font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:#46ff9e;border:1px solid color-mix(in srgb,#46ff9e 40%,transparent);border-radius:2px;padding:3px 8px;white-space:nowrap;}\
+  .cc-tag{font-family:"Poppins",sans-serif;font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:#69788e;border:1px solid rgba(18,38,66,.2);border-radius:2px;padding:3px 8px;white-space:nowrap;}\
   .cc-foot-links{display:flex;gap:18px;flex-wrap:wrap;align-items:center;}\
-  .cc-foot-links a,.cc-foot-links button{font-family:"Poppins",sans-serif;font-size:12.5px;letter-spacing:.05em;color:#7e93ad;background:none;border:0;padding:0;cursor:pointer;transition:color .2s;}\
-  .cc-foot-links a:hover,.cc-foot-links button:hover{color:#1fe6d2;}\
+  .cc-foot-links a,.cc-foot-links button{font-family:"Poppins",sans-serif;font-size:12.5px;letter-spacing:.05em;color:#69788e;background:none;border:0;padding:0;cursor:pointer;transition:color .2s;}\
+  .cc-foot-links a:hover,.cc-foot-links button:hover{color:#db0a30;}\
   @media (max-width:720px){\
     .cc-banner{padding:9px;}\
     .cc-card{max-height:calc(100dvh - 18px);overflow:auto;}\
