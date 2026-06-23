@@ -2044,8 +2044,8 @@ function VertrauenSection({ onBook }) {
 
 /* Buchung (#kontakt) — wiederkehrende Erstgespräch-Slots: erst Datum, dann Uhrzeit */
 const tmtInp = { background: "rgba(140,190,230,.05)", border: "1px solid var(--line-strong)", borderRadius: 2, padding: "12px 14px", color: "var(--ink)", fontFamily: "Poppins", fontSize: 14, outline: "none", minWidth: 0, maxWidth: "100%" };
-const BOOK_TIMES = ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00"];
-const BOOK_CAP = 2;
+const BOOK_TIMES = ["09:00", "09:30", "10:00", "10:30", "15:00", "15:30"];
+const BOOK_CAP = 1;
 const DOW = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
 const MON = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
 function nextBusinessDays(n) {
@@ -2053,7 +2053,7 @@ function nextBusinessDays(n) {
   let i = 0;
   while (out.length < n && i < 30) {
     i++;const x = new Date(base);x.setDate(base.getDate() + i);
-    const wd = x.getDay();if (wd === 0 || wd === 6) continue;
+    const wd = x.getDay();if (wd !== 2 && wd !== 3 && wd !== 4) continue;
     const iso = x.getFullYear() + "-" + String(x.getMonth() + 1).padStart(2, "0") + "-" + String(x.getDate()).padStart(2, "0");
     out.push({ iso, dow: DOW[wd], dom: x.getDate(), mon: MON[x.getMonth()] });
   }
@@ -2079,13 +2079,13 @@ function ErstgesprachBooking() {
     (async () => {
       try {
         const rows = await window.KIWBooking.loadAvailability(selDate);
-        if (on) setAvail((rows || []).reduce((m, r) => {m[r.label] = r.remaining;return m;}, {}));
+        if (on) setAvail((rows || []).reduce((m, r) => {m[r.label] = r;return m;}, {}));
       } catch (e) {if (on) setError("Verfügbarkeit konnte nicht geladen werden. Bitte Seite neu laden.");}
     })();
     return () => {on = false;};
   }, [selDate, live]);
 
-  const remaining = (t) => live ? avail ? avail[t] != null ? avail[t] : 0 : null : BOOK_CAP - (taken[selDate + "|" + t] || 0);
+  const remaining = (t) => live ? avail ? avail[t] != null ? avail[t].remaining : 0 : null : BOOK_CAP - (taken[selDate + "|" + t] || 0);
   const valid = selDate && selTime && form.name.trim() && /\S+@\S+\.\S+/.test(form.email);
   const selLabel = () => {const d = dates.find((x) => x.iso === selDate);return d ? d.dow + " " + d.dom + ". " + d.mon : "";};
 
@@ -2094,7 +2094,7 @@ function ErstgesprachBooking() {
     setError(null);setSubmitting(true);
     try {
       if (live) {
-        const r = await window.KIWBooking.bookSlot(selDate, selTime, form.name.trim(), form.email.trim(), form.company.trim(), form.note.trim());
+        const r = await window.KIWBooking.bookSlot(selDate, avail && avail[selTime] ? avail[selTime].slot_id : null, form.name.trim(), form.email.trim(), form.company.trim(), form.note.trim());
         if (r === "ok") setDone(true);else
         if (r === "full") {setError("Dieser Termin ist gerade belegt. Bitte wählen Sie einen anderen.");setSelTime(null);} else
         setError("Dieser Termin ist nicht mehr verfügbar.");
