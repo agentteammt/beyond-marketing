@@ -1,11 +1,12 @@
-/* supabase.js — Anbindung der Werkstatt-Buchung an Supabase.
-   Liest Zugangsdaten aus window.KIW_SUPABASE (siehe index.html) und spricht
-   genau zwei Postgres-RPC-Funktionen über die REST-API an:
-     - get_availability()  -> [{ slot_id, label, remaining }]
-     - book_slot(p_slot_id, p_name, p_email, p_company, p_note)
-                            -> 'ok' | 'full' | 'invalid_slot'
+/* supabase.js — Anbindung der Erstgespraech-Buchung an Supabase + Edge Function.
+   Liest Zugangsdaten aus window.KIW_SUPABASE (siehe index.html).
+   - loadAvailability(date) -> [{ slot_id, label, remaining, is_available }]
+     ueber RPC get_availability(p_date). Liefert pro 30-Min-Slot Restkapazitaet.
+   - bookSlot(date, slotId, name, email, company, note) -> 'ok' | 'full' | 'invalid_slot'
+     ruft die Edge Function "book" auf, die die Buchung schreibt UND
+     E-Mails (intern + Kundenbestaetigung mit .ics) ueber Resend verschickt.
    Ohne hinterlegten Zugang bleibt KIWBooking.configured() === false
-   und die Buchung läuft im lokalen Demo-Modus. */
+   und die Buchung laeuft im lokalen Demo-Modus. */
 (function () {
   function cfg() { return window.KIW_SUPABASE || {}; }
   function base() { return String(cfg().url || "").replace(/\/+$/, ""); }
@@ -36,30 +37,65 @@
     return data;
   }
 
-  // -> [{ slot_id, label, remaining }]  (oder null wenn nicht konfiguriert)
-  // p_date: ISO-Datum (YYYY-MM-DD) des gewünschten Tages
+  // "09:00:00" / "09:00" -> "09:00"
+  function label(t) {
+    if (t == null) return "";
+    var s = String(t);
+    var m = s.match(/^(\d{2}:\d{2})/);
+    return m ? m[1] : s;
+  }
+
+  // -> [{ slot_id, label, remaining, is_available }] (oder null wenn nicht konfiguriert)
+  // p_date: ISO-Datum (YYYY-MM-DD) des gewuenschten Tages
+  // get_availability liefert { slot_id, start_time, capacity, booked, is_available }
   async function loadAvailability(date) {
     if (!configured()) return null;
     var rows = await rpc("get_availability", { p_date: date || null });
-    return Array.isArray(rows) ? rows : [];
+    if (!Array.isArray(rows)) return [];
+    return rows.map(function (r) {
+      var cap = r.capacity != null ? Number(r.capacity) : 1;
+      var booked = r.booked != null ? Number(r.booked) : 0;
+      var rem = r.is_available === false ? 0 : Math.max(0, cap - booked);
+      return {
+        slot_id: r.slot_id,
+        label: label(r.start_time),
+        remaining: rem,
+        is_available: r.is_available !== false && rem > 0,
+      };
+    });
   }
 
   // -> 'ok' | 'full' | 'invalid_slot'
-  // date: ISO-Datum (YYYY-MM-DD), slotId: Uhrzeit-Label (z. B. '09:00')
+  // date: ISO-Datum (YYYY-MM-DD), slotId: numerische Slot-ID (bigint) aus loadAvailability
+  // Buchung laeuft ueber die Edge Function "book" (schreibt Buchung + sendet E-Mails).
   async function bookSlot(date, slotId, name, email, company, note) {
     if (!configured()) throw new Error("not-configured");
-    var result = await rpc("book_slot", {
-      p_date: date,
-      p_slot_id: slotId,
-      p_name: name,
-      p_email: email,
-      p_company: company || null,
-      p_note: note || null,
+    var c = cfg();
+    var res = await fetch(base() + "/functions/v1/book", {
+      method: "POST",
+      headers: headers(),
+      body: JSON.stringify({
+        date: date,
+        slot_id: slotId,
+        name: name,
+        email: email,
+        company: company || null,
+        note: note || null,
+      }),
     });
-    // RPC kann den String direkt oder als JSON-String liefern
-    if (typeof result === "string") return result;
-    if (result && typeof result.book_slot === "string") return result.book_slot;
-    return String(result);
+    var data = null;
+    try { data = await res.json(); } catch (e) { data = null; }
+    var status = data && data.status;
+    if (status === "booked") return "ok";
+    if (status === "already_booked" || status === "full") return "full";
+    if (status === "invalid_slot" || status === "not_found") return "invalid_slot";
+    if (!res.ok) {
+      var msg = (data && (data.error || data.message)) || ("HTTP " + res.status);
+      var err = new Error(msg); err.status = res.status; err.data = data;
+      throw err;
+    }
+    // Fallback: unbekannte, aber erfolgreiche Antwort als ok werten
+    return "ok";
   }
 
   window.KIWBooking = { configured: configured, loadAvailability: loadAvailability, bookSlot: bookSlot };
