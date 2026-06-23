@@ -682,6 +682,7 @@
   @media (max-width:700px){ .hero-draghint{ display:none !important; } }
   /* Deko-Stempel im Buchungsabschnitt mobil ausblenden (ragte über den Rand) */
   @media (max-width:760px){ .book-stamp{ display:none !important; } }
+  @media (max-width:820px){ .teamgrid{ grid-template-columns:1fr !important; gap:34px !important; } }
 </style>
 <link id="gfont-Poppins" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&amp;display=swap">
 </head>
@@ -737,9 +738,6 @@
     })();
   </script>
 
-  <!-- Three.js (WebGL hero) — selbst gehostet (kein CDN) -->
-  <script defer src="js/vendor/three.min.js"></script>
-
   <!-- Smooth scroll engine: Lenis (whole-page vertical) + GSAP ScrollTrigger (horizontal pin).
        They share ONE RAF loop, wired in app.jsx. Selbst gehostet, müssen vor app.jsx laden. -->
   <script defer src="js/vendor/gsap.min.js"></script>
@@ -759,7 +757,7 @@
       anonKey: "sb_publishable_qbCl1DHaW-4eWviFhcAgPw_M71ZYmjh",
     };
   </script>
-  <script defer src="supabase.js"></script>
+  <script defer src="supabase.js?v=3"></script>
 
   <!-- ============================================================
        GOOGLE ANALYTICS — Mess-ID hier eintragen (Format G-XXXXXXXXXX).
@@ -778,15 +776,11 @@
   <!-- Hooks als Globals (Sicherheitsnetz für Module ohne lokale Destrukturierung) -->
   <script defer src="js/_hooks-global.js"></script>
 
-  <!-- hero WebGL scene (vanilla, attaches window.KIWHero) -->
-  <script defer src="hero3d.js"></script>
   <!-- vorkompilierte Komponenten (Reihenfolge = Abhängigkeit; app zuletzt) -->
   <script defer src="js/tweaks-panel.js?v=2"></script>
   <script defer src="js/sections.js?v=3"></script>
   <script defer src="js/heroIntro.js?v=3"></script>
-  <script defer src="js/missionTimer.js?v=2"></script>
-  <script defer src="js/baustellenschild.js?v=2"></script>
-  <script defer src="js/app.js?v=29"></script>
+  <script defer src="js/app.js?v=47"></script>
   <!-- DSGVO: Cookie-Consent-Banner + Footer-Rechtslinks (vanilla, nach app) -->
   <script defer src="js/legal.js"></script>
 </body>

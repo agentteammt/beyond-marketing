@@ -79,9 +79,18 @@ function scrollToId(id) {
   if (el) smoothScrollTo(el.getBoundingClientRect().top + window.scrollY - 64);
 }
 
+/* Hash-basiertes Routing: #/ansatz und #/leistungen sind eigene Seiten.
+   Anker-Sprungmarken nutzen weiterhin preventDefault (keine Hash-Änderung),
+   nur echte Seitenwechsel lösen ein Reload aus. */
+function getRoute() {
+  var m = (location.hash || "").toLowerCase().match(/^#\/(ansatz|leistungen|team)\b/);
+  return m ? m[1] : "home";
+}
+
 /* ----------------------------- Top bar ----------------------------- */
 function TopBar({
-  onBook
+  onBook,
+  route
 }) {
   const [solid, setSolid] = useState(false);
   useEffect(() => {
@@ -108,23 +117,22 @@ function TopBar({
     }
   }, h("div", {
     className: "wrap",
-    style: { display: "flex", alignItems: "center", justifyContent: "space-between", height: 64, gap: 20 }
+    style: { display: "flex", alignItems: "center", justifyContent: "flex-start", height: 64, gap: 20 }
   }, h("a", {
-    href: "#top",
-    onClick: e => { e.preventDefault(); smoothScrollTo(0); },
-    style: { display: "flex", alignItems: "center", gap: 11 }
+    href: "#/",
+    onClick: e => { if (route === "home") { e.preventDefault(); smoothScrollTo(0); } },
+    style: { display: "flex", alignItems: "center", gap: 11, marginRight: "auto" }
   }, h("img", {
     src: "assets/logo-wordmark.jpg", alt: "team::mt", style: { height: 21, width: "auto", display: "block", mixBlendMode: "multiply" }
   })), h("nav", {
     className: "topnav",
-    style: { display: "flex", alignItems: "center", gap: 30, fontFamily: "Poppins", fontSize: 14, fontWeight: 500, color: "var(--ink-dim)" }
-  }, [["Ansatz", "ansatz"], ["KI-Labor", "labor"], ["Pakete", "pakete"], ["Team", "team"]].map(([label, id]) => h("a", {
-    key: id, href: "#" + id,
-    onClick: e => { e.preventDefault(); scrollToId(id); },
-    style: { transition: "color .2s" },
+    style: { display: "flex", alignItems: "center", gap: 34.5, marginRight: 30, fontFamily: "Poppins", fontSize: 14, fontWeight: 500, color: "var(--ink-dim)" }
+  }, [["Ansatz", "ansatz"], ["Leistungen", "leistungen"], ["Team", "team"]].map(([label, id]) => { const active = route === id; return h("a", {
+    key: id, href: "#/" + id,
+    style: { transition: "color .2s", color: active ? "var(--accent)" : "var(--ink-dim)", fontWeight: active ? 600 : 500 },
     onMouseEnter: e => e.currentTarget.style.color = "var(--accent)",
-    onMouseLeave: e => e.currentTarget.style.color = "var(--ink-dim)"
-  }, label))), h("button", {
+    onMouseLeave: e => e.currentTarget.style.color = active ? "var(--accent)" : "var(--ink-dim)"
+  }, label); })), h("button", {
     className: "btn btn-cta topbar-cta",
     style: { padding: "11px 20px", fontSize: 14 },
     onClick: onBook
@@ -1867,16 +1875,16 @@ function BeyondMarketingSection({ onBook }) {
             h("button", { className: "btn btn-cta", onClick: onBook }, "Termin vereinbaren ", h(Icon, { name: "arrow", size: 16 })),
             h("a", { className: "btn btn-ghost", href: "https://team-mt.de", target: "_blank", rel: "noopener noreferrer" }, "team-mt.de"))))));
 }
-function GlassRing360({ onBook }) {
+function GlassRing360({ onBook, leistungenHref, forceStatic }) {
   const channels = [["spark", "Von Kampagnen", "zu Always-on-Systemen"], ["scan", "Von Google", "zu KI-Antworten"], ["bolt", "Von Handarbeit", "zu Automatisierung"], ["chart", "Von Bauchgefühl", "zu Echtzeit-Daten"], ["arrow", "Von Wochen", "zu Stunden"], ["target", "Von Masse", "zu Personalisierung"]];
   const N = channels.length;
   const wrapRef = useRef(null), videoRef = useRef(null), introRef = useRef(null), convRef = useRef(null), idxRef = useRef(null), headingRef = useRef(null), sheetRef = useRef(null), scanRef = useRef(null), scanBeamRef = useRef(null), scanFillRef = useRef(null), scanReadRef = useRef(null);
   const labelRefs = useRef([]), lineRefs = useRef([]), dotRefs = useRef([]);
-  const [fallback, setFallback] = useState(false);
+  const [fallback, setFallback] = useState(!!forceStatic);
   const goIndex = () => { const wrap = wrapRef.current; if (!wrap) return; const top = wrap.getBoundingClientRect().top + window.scrollY; const travel = wrap.offsetHeight - window.innerHeight; const target = top + 0.97 * travel; if (window.__lenis && window.__lenis.scrollTo) window.__lenis.scrollTo(target, { duration: 1.4 }); else window.scrollTo({ top: target, behavior: "smooth" }); };
   useEffect(() => {
     const cinematic = window.matchMedia("(min-width:901px)").matches && !window.matchMedia("(pointer:coarse)").matches && !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (!cinematic) { setFallback(true); return; }
+    if (!cinematic || forceStatic) { setFallback(true); return; }
     const wrap = wrapRef.current, video = videoRef.current;
     if (!wrap || !video) { setFallback(true); return; }
     let dur = 5.79;
@@ -1886,7 +1894,19 @@ function GlassRing360({ onBook }) {
     const GAP = 26;
     const sstep = (e0, e1, x) => { const t = Math.min(1, Math.max(0, (x - e0) / (e1 - e0))); return t * t * (3 - 2 * t); };
     const revealOf = (lt, fin, fout) => (lt <= 0 || lt >= 1) ? 0 : sstep(0, fin || 0.3, lt) * (1 - sstep(1 - (fout || 0.3), 1, lt));
-    const computeProg = () => { const r = wrap.getBoundingClientRect(); const tv = r.height - window.innerHeight; return tv > 0 ? Math.min(1, Math.max(0, -r.top / tv)) : 0; };
+    // Progress-Remap: das Band, in dem nur noch die Headline sichtbar ist
+    // (logisch ~0.32..0.44), soll 30% schneller durchscrollen. Andere Phasen
+    // behalten exakt ihre physische Scrollstrecke (Section-H\u00f6he entsprechend angepasst).
+    const remapProg = (q) => {
+      const L0 = 0.32, L1 = 0.44;
+      const segA = L0, segB = (L1 - L0) * 0.7, segC = 1 - L1;
+      const tot = segA + segB + segC;
+      const qA = segA / tot, qB = (segA + segB) / tot;
+      if (q <= qA) return qA > 0 ? q / qA * L0 : 0;
+      if (q <= qB) return L0 + (q - qA) / (qB - qA) * (L1 - L0);
+      return L1 + (q - qB) / (1 - qB) * (1 - L1);
+    };
+    const computeProg = () => { const r = wrap.getBoundingClientRect(); const tv = r.height - window.innerHeight; const q = tv > 0 ? Math.min(1, Math.max(0, -r.top / tv)) : 0; return remapProg(q); };
     const draw = () => {
       const p = computeProg();
       const rotT = Math.min(1, Math.max(0, (p - 0.42) / 0.36));
@@ -1986,16 +2006,35 @@ function GlassRing360({ onBook }) {
     };
   }, []);
   if (fallback) {
-    return h("section", { id: "loesung360", className: "sec-pad grid-bg", style: { borderTop: "1px solid var(--line)" } },
-      h("div", { className: "wrap", style: { maxWidth: 900, margin: "0 auto", textAlign: "center" } },
-        h("div", { style: { display: "flex", justifyContent: "center" } }, h(Eyebrow, { num: "// 02" }, "Unsere L\u00f6sung")),
-        h("h2", { style: { fontSize: "clamp(28px,4vw,48px)", marginTop: 10, marginBottom: 40, textWrap: "balance" } }, h("span", { style: { color: "var(--accent)" } }, "360\u00b0"), " im KI-Marketing-Labor"),
-        h("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "28px 40px", textAlign: "left" } },
-          channels.map(([ic, ch, be]) => h("div", { key: ch, style: { display: "flex", gap: 14, alignItems: "flex-start" } },
-            h("span", { style: { color: "var(--accent)", flex: "none", marginTop: 2 } }, h(Icon, { name: ic, size: 22 })),
-            h("div", null, h("div", { style: { fontFamily: "Poppins", fontWeight: 600, fontSize: 17 } }, ch), h("div", { style: { fontFamily: '"EB Garamond", Georgia, serif', fontSize: 18, color: "var(--ink-dim)", marginTop: 2 } }, be)))))));
+    return h("section", { id: "loesung360", className: "sec-pad grid-bg", style: { borderTop: "1px solid var(--line)", overflow: "hidden" } },
+      h("div", { className: "wrap", style: { maxWidth: 1080, margin: "0 auto" } },
+        h("div", { style: { textAlign: "center", maxWidth: 760, margin: "0 auto" } },
+          h("div", { style: { display: "flex", justifyContent: "center", marginBottom: 18 } }, h(Eyebrow, { num: "// 01" }, "Warum Beyond")),
+          h("div", { style: { display: "flex", flexWrap: "wrap", gap: 12, justifyContent: "center", marginBottom: 26 } }, ["mehr Kanäle", "mehr Content", "mehr Geschwindigkeit", "mehr Messbarkeit"].map((c) => h("span", { key: c, style: { display: "inline-flex", alignItems: "center", gap: 9, padding: "10px 18px", borderRadius: 999, fontFamily: "Poppins", fontWeight: 500, fontSize: "clamp(13px,1.4vw,15px)", color: "var(--ink)", background: "var(--glass)", boxShadow: "inset 0 0 0 1px var(--glass-line)" } }, h("span", { style: { width: 7, height: 7, borderRadius: "50%", background: "var(--accent)" } }), c))),
+          h("h2", { style: { fontFamily: '"EB Garamond", Georgia, serif', fontStyle: "italic", fontWeight: 500, fontSize: "clamp(28px,4.4vw,54px)", textWrap: "balance", lineHeight: 1.12, margin: 0 } }, "Marketing wird gerade neu definiert. ", h("span", { style: { color: "var(--accent)", fontStyle: "normal" } }, "Mit Ihnen?")),
+          h("p", { className: "lead", style: { maxWidth: 640, margin: "18px auto 0" } }, "Marketing-Abteilungen sollen mehr leisten, schneller liefern und gleichzeitig effizienter werden — mit denselben Teams. KI ist die einzige Antwort, die diese Gleichung auflöst. Sie trennt gerade zwei Lager: die, die ihre Schlagkraft vervielfachen, und die, die zusehen.")),
+        h("div", { style: { marginTop: "clamp(48px,6vw,82px)" } },
+          h("div", { style: { display: "flex", justifyContent: "center", marginBottom: 28 } }, h(Eyebrow, { num: "// 02" }, "360° im KI-Marketing")),
+          h("div", { style: { position: "relative", width: "min(440px,82vw)", margin: "0 auto clamp(28px,4vw,52px)", aspectRatio: "1 / 1" } }, h("video", { src: "assets/glass-logo.mp4", autoPlay: true, muted: true, loop: true, playsInline: true, preload: "auto", "aria-hidden": "true", style: { width: "100%", height: "100%", objectFit: "cover", filter: "brightness(1.12) contrast(1.05) saturate(1.1)", WebkitMaskImage: "radial-gradient(ellipse 60% 62% at 50% 50%, #000 46%, rgba(0,0,0,0) 90%)", maskImage: "radial-gradient(ellipse 60% 62% at 50% 50%, #000 46%, rgba(0,0,0,0) 90%)" } })),
+          h("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "22px 40px" } },
+            channels.map(([ic, ch, be]) => h("div", { key: ch, style: { display: "flex", gap: 14, alignItems: "flex-start" } },
+              h("span", { style: { color: "var(--accent)", flex: "none", marginTop: 2 } }, h(Icon, { name: ic, size: 22 })),
+              h("div", null, h("div", { style: { fontFamily: "Poppins", fontWeight: 600, fontSize: 17 } }, ch), h("div", { style: { fontFamily: '"EB Garamond", Georgia, serif', fontSize: 18, color: "var(--ink-dim)", marginTop: 2 } }, be)))))),
+        h("div", { style: { marginTop: "clamp(48px,6vw,82px)", position: "relative", padding: "clamp(26px,3.4vw,46px)", borderRadius: 12, background: "linear-gradient(180deg, rgba(255,255,255,.7), rgba(244,247,251,.5))", boxShadow: "inset 0 0 0 1px color-mix(in srgb,var(--accent) 30%, transparent), 0 30px 70px rgba(20,40,70,.10)" } },
+          h("div", { style: { display: "flex", justifyContent: "flex-start", marginBottom: 18 } }, h(Eyebrow, { num: "// 03" }, "Definition")),
+          h("div", { style: { fontFamily: "Poppins", fontWeight: 700, fontSize: "clamp(16px,1.8vw,22px)", letterSpacing: "-.01em", color: "var(--ink)", marginBottom: 8 } }, "Wir nennen es"),
+          h("h2", { style: { fontFamily: '"EB Garamond", Georgia, serif', fontStyle: "italic", fontWeight: 500, fontSize: "clamp(34px,4.4vw,58px)", lineHeight: 1.0, margin: 0, color: "var(--ink)" } }, "Beyond Marketing"),
+          h("div", { style: { display: "flex", alignItems: "center", gap: 14, marginTop: 16, color: "var(--muted)", fontFamily: "Poppins", fontSize: 14, flexWrap: "wrap" } },
+            h("span", { style: { fontFamily: '"EB Garamond", Georgia, serif', fontStyle: "italic", fontSize: 18, color: "var(--ink-dim)" } }, "/bɪˈjɒnd ˈmɑːkɪtɪŋ/"),
+            h("span", { style: { width: 4, height: 4, borderRadius: "50%", background: "var(--accent)" } }),
+            h("span", null, "Substantiv"),
+            h("span", { style: { width: 4, height: 4, borderRadius: "50%", background: "var(--accent)" } }),
+            h("span", null, "team::mt")),
+          h("p", { style: { fontFamily: '"EB Garamond", Georgia, serif', fontSize: "clamp(19px,2vw,27px)", lineHeight: 1.42, color: "var(--ink)", maxWidth: 640, marginTop: 24, marginBottom: 0 } }, h("span", { style: { color: "var(--accent)", fontWeight: 600, fontFamily: "Poppins", fontSize: "0.62em", marginRight: 12, verticalAlign: "2px" } }, "1."), "Marketing, das mit KI über alle Kanäle hinweg denkt — 360°, immer aktiv, in Echtzeit messbar."),
+          h("p", { style: { fontFamily: '"EB Garamond", Georgia, serif', fontStyle: "italic", fontSize: 16, color: "var(--ink-dim)", maxWidth: 560, marginTop: 14, marginBottom: 0 } }, "„Sie machen kein Marketing von gestern mehr — Sie machen Beyond Marketing.“")),
+        leistungenHref ? h("div", { style: { marginTop: "clamp(40px,5vw,60px)", textAlign: "center" } }, h("a", { href: leistungenHref, className: "btn btn-cta", style: { textDecoration: "none" } }, "Alle Leistungen ansehen ", h(Icon, { name: "arrow", size: 16 }))) : null));
   }
-  return h("section", { id: "loesung360", ref: wrapRef, className: "grid-bg", style: { position: "relative", height: "945vh", borderTop: "1px solid var(--line)" } },
+  return h("section", { id: "loesung360", ref: wrapRef, className: "grid-bg", style: { position: "relative", height: "636vh", borderTop: "1px solid var(--line)" } },
     h("div", { style: { position: "sticky", top: 0, height: "100vh", overflow: "hidden" } },
     h("div", { ref: introRef, style: { position: "absolute", inset: 0, zIndex: 6, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", padding: "0 24px", pointerEvents: "none" } },
       h("div", { style: { display: "flex", justifyContent: "center", marginBottom: 18 } }, h(Eyebrow, { num: "// 01" }, "Warum Beyond")),
@@ -2044,7 +2083,8 @@ function GlassRing360({ onBook }) {
           h("span", { className: "lidx-name", style: { display: "flex", alignItems: "center", gap: "clamp(12px,1.4vw,18px)" } },
             h("img", { src: d.img, alt: "", "aria-hidden": "true", style: { width: "clamp(40px,3.6vw,56px)", height: "auto", flex: "none", filter: "drop-shadow(0 6px 16px color-mix(in srgb,var(--accent) 34%, transparent))" } }),
             d.eyebrow),
-          h("span", { className: "lidx-go" }, h(Icon, { name: "arrow", size: 20 })))))) ),
+          h("span", { className: "lidx-go" }, h(Icon, { name: "arrow", size: 20 }))))),
+        leistungenHref ? h("a", { href: leistungenHref, className: "btn btn-cta", style: { display: "inline-flex", alignItems: "center", gap: 10, marginTop: "clamp(24px,3vw,38px)", textDecoration: "none" } }, "Alle Leistungen ansehen ", h(Icon, { name: "arrow", size: 16 })) : null) ),
     h("video", { ref: videoRef, src: "assets/glass-logo.mp4", muted: true, playsInline: true, preload: "auto", style: { position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", zIndex: 1, background: "#fff", opacity: 0, transform: "translateY(10%) scale(0.7)", transformOrigin: "center", filter: "brightness(1.16) contrast(1.06) saturate(1.12)", WebkitMaskImage: "radial-gradient(ellipse 60% 62% at 50% 50%, #000 46%, rgba(0,0,0,0) 90%)", maskImage: "radial-gradient(ellipse 60% 62% at 50% 50%, #000 46%, rgba(0,0,0,0) 90%)" } }),
     h("div", { ref: scanRef, "aria-hidden": "true", style: { position: "absolute", left: "50%", top: "calc(50% + 10vh)", transform: "translate(-50%,-50%)", width: "min(58vh,54vw)", height: "min(58vh,54vw)", zIndex: 6, opacity: 0, pointerEvents: "none", willChange: "opacity" } },
       h("div", { ref: scanFillRef, "aria-hidden": "true", style: { position: "absolute", left: 0, right: 0, top: 0, height: "0%", overflow: "hidden", background: "linear-gradient(180deg, color-mix(in srgb,var(--accent) 14%, transparent), color-mix(in srgb,var(--accent) 4%, transparent))" } },
@@ -2230,7 +2270,7 @@ function AuditVisual() {
           h("div", { style: { position: "relative", height: 10, borderRadius: 2, background: "repeating-linear-gradient(90deg, var(--line-strong) 0 7px, transparent 7px 11px)" } },
             h("div", { style: { position: "absolute", left: 0, top: 0, bottom: 0, width: val + "%", borderRadius: 2, background: "repeating-linear-gradient(90deg, var(--accent) 0 7px, color-mix(in srgb,var(--accent) 30%, transparent) 7px 11px)", boxShadow: "0 0 12px color-mix(in srgb,var(--accent) 40%, transparent)" } })))) ),
       h("div", { style: { display: "flex", alignItems: "center", gap: 8, marginTop: 18, fontFamily: mono, fontSize: 12, color: "var(--ink)" } },
-        h(Icon, { name: "check", size: 14, stroke: 2.6 }), h("span", null, "Befund: ", h("span", { style: { color: "var(--accent)" } }, "3 Hebel"), " mit Sofortwirkung"))));
+        h(Icon, { name: "check", size: 14, stroke: 2.6 }), h("span", null, "Befund: ", h("span", { style: { color: "var(--accent)" } }, "4 Hebel"), " mit Sofortwirkung"))));
 }
 function GeoVisual() {
   return h("div", { style: gp },
@@ -2242,7 +2282,7 @@ function GeoVisual() {
       ["Quelle: team-mt.de", "zitiert in KI-Antwort", "Position 1"].map(t => h("span", { key: t, style: { fontFamily: "Poppins", fontSize: 11.5, padding: "5px 11px", borderRadius: 999, color: "var(--ink-dim)", boxShadow: "inset 0 0 0 1px var(--line-strong)" } }, t))));
 }
 function LinkedInVisual() {
-  const stats = [["Impressions", 18400, ""], ["Profilaufrufe", 920, ""], ["Interaktion", 6, "%"]];
+  const stats = [["Impressions", 14800, ""], ["Profilaufrufe", 740, ""], ["Interaktion", 5, "%"]];
   return h("div", { style: gp },
     h("div", { style: { display: "flex", alignItems: "center", gap: 13, marginBottom: 18 } },
       h("span", { style: { width: 46, height: 46, borderRadius: "50%", background: "linear-gradient(160deg, color-mix(in srgb,var(--accent) 18%, var(--glass)), var(--glass))", boxShadow: "inset 0 0 0 1px var(--glass-line)", display: "grid", placeItems: "center", color: "var(--accent)" } }, h(Icon, { name: "linkedin", size: 22 })),
@@ -2391,14 +2431,14 @@ function LeistungChapter({ d, flip, onBook }) {
   }, [enabled]);
 
   if (!enabled) {
-    return h("section", { className: "sec-pad grid-bg", style: { borderTop: "1px solid var(--line)" } },
+    return h("section", { id: "leistung-" + d.num.replace("// ", ""), className: "sec-pad grid-bg", style: { borderTop: "1px solid var(--line)" } },
       h("div", { className: "wrap", style: { display: "flex", flexWrap: "wrap", gap: "clamp(28px,4vw,64px)", alignItems: "center", flexDirection: flip ? "row-reverse" : "row" } },
         h("div", { style: { flex: "1 1 360px", maxWidth: 520 } },
           h(ChapterContent, { d, onBook })),
         h("div", { style: { flex: "1 1 400px", maxWidth: 540, width: "100%" } }, h(Vis, null))));
   }
 
-  return h("section", { className: "grid-bg", style: { borderTop: "1px solid var(--line)" } },
+  return h("section", { id: "leistung-" + d.num.replace("// ", ""), className: "grid-bg", style: { borderTop: "1px solid var(--line)" } },
     h("div", { ref: stageRef, style: { position: "relative", height: "100vh", overflow: "hidden", display: "flex", alignItems: "center" } },
       h("div", { ref: lightRef, "aria-hidden": "true", style: { position: "absolute", left: "50%", top: "50%", width: "60vmin", height: "60vmin", transform: "translate(-50%,-50%)", borderRadius: "50%", background: "radial-gradient(circle, #fff 0%, rgba(255,255,255,.7) 18%, transparent 60%)", filter: "blur(8px)", opacity: 0, zIndex: 1, pointerEvents: "none" } }),
       h("div", { ref: flashRef, "aria-hidden": "true", style: { position: "absolute", left: "50%", top: "50%", width: "72vmin", height: "72vmin", transform: "translate(-50%,-50%)", borderRadius: "50%", opacity: 0, zIndex: 2, pointerEvents: "none", mixBlendMode: "screen", background: "conic-gradient(from 0deg, transparent, color-mix(in srgb,var(--accent) 55%, transparent), #fff, color-mix(in srgb,var(--accent) 55%, transparent), transparent)", filter: "blur(14px)" } }),
@@ -2413,6 +2453,21 @@ function LeistungChapter({ d, flip, onBook }) {
           h("div", { style: { display: "flex", flexWrap: "wrap", gap: "clamp(28px,4vw,64px)", alignItems: "center", flexDirection: flip ? "row-reverse" : "row" } },
             h("div", { style: { flex: "1 1 360px", maxWidth: 520 } }, h(ChapterContent, { d, onBook })),
             h("div", { style: { flex: "1 1 400px", maxWidth: 540, width: "100%" } }, rev && h(Vis, null)))))));
+}
+
+/* Statischer Leistungs-Index („Was wir tun") für die Leistungen-Unterseite.
+   Nutzt dieselben CHAPTERS-Daten; Zeilen springen zum jeweiligen Kapitel. */
+function LeistungsIndex() {
+  return h("section", { className: "sec-pad grid-bg", style: { borderTop: "1px solid var(--line)" } },
+    h("div", { className: "wrap", style: { maxWidth: 980, margin: "0 auto" } },
+      h("div", { style: { display: "flex", justifyContent: "flex-start" } }, h(Eyebrow, { num: "// Leistungen" }, "Was wir tun")),
+      h("h2", { style: { fontFamily: "Poppins", fontWeight: 800, fontSize: "clamp(28px,4vw,48px)", textWrap: "balance", letterSpacing: "-.01em", maxWidth: 760, marginTop: 10, marginBottom: "clamp(20px,3vw,36px)" } }, "F\u00fcnf Hebel, ein Ziel: ", h("span", { style: { color: "var(--accent)" } }, "sichtbares Marketing.")),
+      h("div", null, CHAPTERS.map((d) => { const cid = "leistung-" + d.num.replace("// ", ""); return h("a", { key: d.num, href: "#" + cid, onClick: e => { e.preventDefault(); scrollToId(cid); }, className: "lidx-row", style: { cursor: "pointer" } },
+        h("span", { className: "lidx-num" }, d.num.replace("// ", "")),
+        h("span", { className: "lidx-name", style: { display: "flex", alignItems: "center", gap: "clamp(12px,1.4vw,18px)" } },
+          h("img", { src: d.img, alt: "", "aria-hidden": "true", style: { width: "clamp(40px,3.6vw,56px)", height: "auto", flex: "none", filter: "drop-shadow(0 6px 16px color-mix(in srgb,var(--accent) 34%, transparent))" } }),
+          d.eyebrow),
+        h("span", { className: "lidx-go" }, h(Icon, { name: "arrow", size: 20 }))); }))));
 }
 
 let __lidxShown = false;
@@ -2474,26 +2529,24 @@ function CountUp({ to, prefix = "", suffix = "", dur = 1500 }) {
   useEffect(() => {
     const el = ref.current; if (!el) return;
     const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduce) { el.textContent = prefix + to + suffix; return; }
-    let raf = 0, startT = 0, started = false, cancelled = false;
-    const inView = () => {
-      const r = el.getBoundingClientRect(), vw = window.innerWidth || 1, vh = window.innerHeight || 1;
-      const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
-      return cx > vw * 0.12 && cx < vw * 0.88 && cy > 0 && cy < vh;
-    };
-    const frame = now => {
-      if (cancelled) return;
-      if (!started && inView()) { started = true; startT = now; }
-      if (started) {
-        const p = Math.min(1, (now - startT) / dur);
-        el.textContent = prefix + Math.round(to * (1 - Math.pow(1 - p, 3))) + suffix;
-        if (p >= 1) { raf = 0; return; }
-      }
-      raf = requestAnimationFrame(frame);
-    };
     el.textContent = prefix + "0" + suffix;
-    raf = requestAnimationFrame(frame);
-    return () => { cancelled = true; if (raf) cancelAnimationFrame(raf); };
+    if (reduce) { el.textContent = prefix + to.toLocaleString("de-DE") + suffix; return; }
+    let raf = 0, startT = 0, cancelled = false, ran = false;
+    const run = now => {
+      if (cancelled) return;
+      if (!startT) startT = now;
+      const p = Math.min(1, (now - startT) / dur);
+      el.textContent = prefix + Math.round(to * (1 - Math.pow(1 - p, 3))).toLocaleString("de-DE") + suffix;
+      if (p >= 1) { raf = 0; return; }
+      raf = requestAnimationFrame(run);
+    };
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting && !ran) { ran = true; raf = requestAnimationFrame(run); } });
+    }, { threshold: 0.15 });
+    io.observe(el);
+    // Sicherheitsnetz: falls der Observer nicht greift, sp\u00e4testens nach kurzer Zeit z\u00e4hlen
+    const fallbackId = setTimeout(() => { if (!ran) { ran = true; raf = requestAnimationFrame(run); } }, 1200);
+    return () => { cancelled = true; if (raf) cancelAnimationFrame(raf); clearTimeout(fallbackId); io.disconnect(); };
   }, []);
   return h("span", { ref }, prefix + "0" + suffix);
 }
@@ -2589,7 +2642,7 @@ const MON = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Ok
 function nextBusinessDays(n) {
   const out = [], base = new Date(); base.setHours(0, 0, 0, 0);
   let i = 0;
-  while (out.length < n && i < 30) {
+  while (out.length < n && i < 60) {
     i++; const x = new Date(base); x.setDate(base.getDate() + i);
     const wd = x.getDay(); if (wd !== 2 && wd !== 3 && wd !== 4) continue;
     const iso = x.getFullYear() + "-" + String(x.getMonth() + 1).padStart(2, "0") + "-" + String(x.getDate()).padStart(2, "0");
@@ -2608,6 +2661,15 @@ function ErstgesprachBooking() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [done, setDone] = useState(false);
+  const refreshAvail = React.useCallback(() => {
+    if (!live) return;
+    (async () => {
+      try {
+        const rows = await window.KIWBooking.loadAvailability(selDate);
+        setAvail((rows || []).reduce((m, r) => { m[r.label] = r; return m; }, {}));
+      } catch (e) { setError("Verfügbarkeit konnte nicht geladen werden. Bitte Seite neu laden."); }
+    })();
+  }, [selDate, live]);
   useEffect(() => {
     let on = true;
     if (!live) return;
@@ -2620,7 +2682,15 @@ function ErstgesprachBooking() {
     })();
     return () => { on = false; };
   }, [selDate, live]);
-  const remaining = t => live ? avail ? avail[t] != null ? avail[t].remaining : 0 : null : BOOK_CAP - (taken[selDate + "|" + t] || 0);
+  const slotRow = t => live && avail ? avail[t] || null : null;
+  const remaining = t => {
+    if (!live) return BOOK_CAP - (taken[selDate + "|" + t] || 0);
+    if (!avail) return null;
+    const r = avail[t];
+    if (!r) return 0;
+    if (r.is_available === false) return 0;
+    return r.remaining != null ? r.remaining : 0;
+  };
   const valid = selDate && selTime && form.name.trim() && /\S+@\S+\.\S+/.test(form.email);
   const selLabel = () => { const d = dates.find(x => x.iso === selDate); return d ? d.dow + " " + d.dom + ". " + d.mon : ""; };
   async function submit() {
@@ -2628,9 +2698,11 @@ function ErstgesprachBooking() {
     setError(null); setSubmitting(true);
     try {
       if (live) {
-        const r = await window.KIWBooking.bookSlot(selDate, avail && avail[selTime] ? avail[selTime].slot_id : null, form.name.trim(), form.email.trim(), form.company.trim(), form.note.trim());
-        if (r === "ok") setDone(true);
-        else if (r === "full") { setError("Dieser Termin ist gerade belegt. Bitte wählen Sie einen anderen."); setSelTime(null); }
+        const row = avail && avail[selTime];
+        if (!row || row.slot_id == null) { setError("Dieser Termin ist nicht mehr verfügbar."); setSelTime(null); return; }
+        const r = await window.KIWBooking.bookSlot(selDate, row.slot_id, form.name.trim(), form.email.trim(), form.company.trim(), form.note.trim());
+        if (r === "ok") { setDone(true); refreshAvail(); }
+        else if (r === "full") { setError("Dieser Termin ist gerade belegt. Bitte wählen Sie einen anderen."); setSelTime(null); refreshAvail(); }
         else setError("Dieser Termin ist nicht mehr verfügbar.");
       } else {
         const k = selDate + "|" + selTime;
@@ -2647,7 +2719,7 @@ function ErstgesprachBooking() {
         h("div", { style: { width: 62, height: 62, margin: "0 auto 20px", borderRadius: "50%", display: "grid", placeItems: "center", color: "var(--accent)", boxShadow: "inset 0 0 0 1px var(--accent), 0 0 30px color-mix(in srgb,var(--accent) 22%, transparent)" } }, h(Icon, { name: "check", size: 28, stroke: 2.4 })),
         h("h3", { style: { fontSize: 23, marginBottom: 10 } }, "Termin angefragt"),
         h("p", { style: { color: "var(--ink-dim)", fontSize: 15, maxWidth: 360, margin: "0 auto" } }, selLabel() + " · " + selTime + " Uhr — wir bestätigen Ihr Erstgespräch per E-Mail."),
-        h("button", { className: "btn btn-ghost", style: { marginTop: 24 }, onClick: () => { setDone(false); setSelTime(null); setForm({ name: "", email: "", company: "", note: "" }); } }, "Weiteren Termin wählen")));
+        h("button", { className: "btn btn-ghost", style: { marginTop: 24 }, onClick: () => { setDone(false); setSelTime(null); setForm({ name: "", email: "", company: "", note: "" }); refreshAvail(); } }, "Weiteren Termin wählen")));
   }
   return h("div", { style: shell },
     h("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", borderBottom: "1px solid var(--line)" } },
@@ -2736,13 +2808,12 @@ function SiteFooter({ onBook }) {
     h("div", { className: "wrap" },
       h("div", { className: "footgrid", style: { display: "grid", gridTemplateColumns: "1.4fr 1fr 1fr", gap: 40, alignItems: "start", marginBottom: 54 } },
         h("div", null,
-          h("div", { style: { display: "flex", alignItems: "center", gap: 11, marginBottom: 16 } },
-            h("img", { src: "assets/logo.png", alt: "team::mt", style: { width: 40, height: 40 } }),
-            h("span", { style: { fontFamily: "Poppins", fontWeight: 700, fontSize: 20 } }, "team", h("span", { style: { color: "var(--accent)" } }, "::"), "mt")),
+          h("div", { style: { display: "flex", alignItems: "center", marginBottom: 16 } },
+            h("img", { src: "assets/logo-wordmark.jpg", alt: "team::mt", style: { height: 26, width: "auto", display: "block", mixBlendMode: "multiply" } })),
           h("p", { style: { color: "var(--muted)", fontSize: 14, maxWidth: 320, margin: 0 } }, "KI-Marketing-Agentur aus München. 33 Jahre B2B-Erfahrung, neu gedacht mit KI und 360°-Blick über alle Kanäle.")),
         h("div", null,
           h("div", { style: tmtFHead }, "Navigation"),
-          [["Ansatz", "ansatz"], ["KI-Labor", "labor"], ["Pakete", "pakete"], ["Team", "team"]].map(([l, id]) => h("a", { key: id, href: "#" + id, onClick: e => { e.preventDefault(); scrollToId(id); }, style: { display: "block", color: "var(--ink-dim)", fontSize: 14.5, marginBottom: 12 } }, l))),
+          [["Startseite", "#/"], ["Ansatz", "#/ansatz"], ["Leistungen", "#/leistungen"], ["Team", "#/team"]].map(([l, href]) => h("a", { key: href, href: href, style: { display: "block", color: "var(--ink-dim)", fontSize: 14.5, marginBottom: 12 } }, l))),
         h("div", null,
           h("div", { style: tmtFHead }, "Kontakt"),
           h("p", { style: { color: "var(--ink-dim)", fontSize: 14, marginTop: 0, marginBottom: 18 } }, "Lassen Sie uns über Ihr Marketing sprechen."),
@@ -2751,6 +2822,130 @@ function SiteFooter({ onBook }) {
       h("div", { style: { display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 12, paddingTop: 22, color: "var(--muted)", fontSize: 12.5, fontFamily: "Poppins", letterSpacing: ".05em" } },
         h("span", null, "© 2026 team::mt"),
         h("span", null, "KI-Marketing-Agentur · München"))));
+}
+
+/* ----------------------------- Team-Unterseite ----------------------------- */
+const TEAM_MEMBERS = [
+  { n: "Martina Manich", r: "CEO & Gr\u00fcnderin", sub: "Dipl. Wirtschaftsinf.", li: "https://www.linkedin.com/in/martina-manich-b2b-marketing/", img: "assets/team/martina.jpg" },
+  { n: "Katja Limbrunner", r: "Stellv. Gesch\u00e4ftsf\u00fchrung", li: "https://www.linkedin.com/in/katja-thomas/", img: "assets/team/katja.avif" },
+  { n: "Moritz Freese", r: "Art Director", li: "https://www.linkedin.com/in/moritz-freese-691074214/", img: "assets/team/moritz.jpg" },
+  { n: "Marius Brinschwitz", r: "Video Expert & Projektmanager", li: "https://www.linkedin.com/in/marius-brinschwitz/", img: "assets/team/marius.jpg" },
+  { n: "Joelle Lenz", r: "Marketing Managerin", li: "https://www.linkedin.com/in/joelle-lenz-38b963183/", img: "assets/team/joelle.avif" },
+  { n: "Eva Reiske", r: "Marketing Managerin", li: "https://www.linkedin.com/in/evareiske/", img: "assets/team/eva.jpg" },
+  { n: "Doris Bremer", r: "Assistenz der Gesch\u00e4ftsleitung", img: "assets/team/doris.jpg" },
+  { n: "Anzhelika Balzer", r: "Performance Marketing Managerin", li: "https://www.linkedin.com/in/anzhelika-balzer-270945370", img: "assets/team/anzhelika.avif" },
+  { n: "Ulrike Zenker", r: "Performance Marketing Managerin", li: "https://www.linkedin.com/in/ulrike-zenker", img: "assets/team/ulrike.avif" },
+  { n: "Marcel Richtfeld", r: "Video Creator", img: "assets/team/marcel.avif" }
+];
+const TEAM_VALUES = [
+  ["spark", "Innovation", "Immer einen Schritt voraus."],
+  ["chart", "Nachhaltigkeit", "Langfristige L\u00f6sungen f\u00fcr eine bessere Zukunft."],
+  ["target", "Teamspirit", "Gemeinsam stark, immer auf Augenh\u00f6he."],
+  ["check", "Kundenn\u00e4he", "Ihre Herausforderungen sind unser Antrieb."]
+];
+const TEAM_TESTI = [
+  ["Mit team::mt haben wir den kreativen und zuverl\u00e4ssigen Partner gefunden, der die Branche bestens kennt und dieselbe Sprache spricht. Die Zusammenarbeit ist v\u00f6llig unkompliziert und macht richtig Spa\u00df.", "Luise Babl", "Software Factory \u00b7 Marketing Managerin"],
+  ["In 20 Jahren haben wir mehrere Agenturen probiert und mit Frau Manich und ihrem Team endlich jemanden gefunden, der unsere Anforderungen versteht \u2014 schnell, flexibel und gut.", "Dr. Rainer Stetter", "ITQ GmbH \u00b7 CEO"],
+  ["Mit team::mt haben wir nicht nur eine Marketingagentur, sondern einen echten Sparringspartner. Das tiefe Branchenverst\u00e4ndnis schafft Vertrauen und Zusammenarbeit auf Augenh\u00f6he.", "Michael Moeller", "gbo datacomp GmbH \u00b7 CEO"]
+];
+function teamInitials(n) { const p = n.trim().split(/\s+/); return (((p[0] || "")[0] || "") + ((p[p.length - 1] || "")[0] || "")).toUpperCase(); }
+
+function TeamMemberCard({ m }) {
+  return h("div", { style: { position: "relative" } },
+    h("div", { style: { position: "relative", aspectRatio: "3 / 4", borderRadius: 7, overflow: "hidden", background: "linear-gradient(160deg, var(--bg-1), var(--bg-2))", boxShadow: "inset 0 0 0 1px var(--line)", display: "grid", placeItems: "center" } },
+      m.img ? h("img", { src: m.img, alt: m.n, loading: "lazy", style: { position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "50% 16%" } }) : h(React.Fragment, null,
+        h("div", { "aria-hidden": "true", style: { position: "absolute", inset: 0, opacity: .6, backgroundImage: "repeating-linear-gradient(135deg, color-mix(in srgb,var(--accent) 9%, transparent) 0 2px, transparent 2px 12px)" } }),
+        h("span", { style: { position: "relative", fontFamily: "Poppins", fontWeight: 700, fontSize: "clamp(32px,3.4vw,50px)", letterSpacing: ".03em", color: "color-mix(in srgb,var(--accent) 60%, var(--ink-dim))" } }, teamInitials(m.n)),
+        h("span", { style: { position: "absolute", bottom: 10, left: 12, fontFamily: mono, fontSize: 10, letterSpacing: ".22em", textTransform: "uppercase", color: "var(--muted)" } }, "Portr\u00e4t"))),
+    h("div", { style: { marginTop: 14 } },
+      h("div", { style: { fontFamily: "Poppins", fontWeight: 600, fontSize: 17, letterSpacing: "-.01em" } }, m.n),
+      h("div", { style: { color: "var(--ink-dim)", fontSize: 14, marginTop: 3 } }, m.r),
+      m.sub ? h("div", { style: { color: "var(--muted)", fontSize: 12.5, marginTop: 2 } }, m.sub) : null,
+      m.li ? h("a", { href: m.li, target: "_blank", rel: "noopener noreferrer", style: { display: "inline-flex", alignItems: "center", gap: 8, marginTop: 11, fontFamily: "Poppins", fontWeight: 500, fontSize: 13, color: "var(--ink-dim)", transition: "color .2s" }, onMouseEnter: e => e.currentTarget.style.color = "var(--accent)", onMouseLeave: e => e.currentTarget.style.color = "var(--ink-dim)" },
+        h("span", { "aria-hidden": "true", style: { display: "inline-grid", placeItems: "center", width: 22, height: 22, borderRadius: 4, background: "var(--accent)", color: "#fff", fontFamily: "Poppins", fontWeight: 700, fontSize: 12, lineHeight: 1 } }, "in"),
+        "LinkedIn") : null));
+}
+
+/* Statischer Intro-Hero f\u00fcr die Ansatz-Seite, damit sofort Inhalt sichtbar ist
+   (die cinematische 360\u00b0-Section blendet erst beim Scrollen ein). */
+function AnsatzHero() {
+  return h("section", { className: "grid-bg mglow", style: { position: "relative", overflow: "hidden", minHeight: "82vh", display: "flex", alignItems: "center", paddingTop: "clamp(120px,14vh,180px)", paddingBottom: "clamp(56px,8vw,96px)", borderBottom: "1px solid var(--line)" } },
+    h("div", { className: "wrap teamgrid", style: { position: "relative", zIndex: 1, display: "grid", gridTemplateColumns: "1.1fr .9fr", gap: "clamp(28px,4vw,60px)", alignItems: "center" } },
+      h("div", null,
+        h(Eyebrow, { num: "// Unser Ansatz" }, "Beyond Marketing"),
+        h("h1", { style: { fontFamily: "Poppins", fontWeight: 800, fontSize: "clamp(40px,6vw,84px)", lineHeight: 1.0, letterSpacing: "-.025em", textWrap: "balance", marginTop: 18 } }, "Marketing, neu gedacht \u2014 ", h("span", { style: { color: "var(--accent)" } }, "360\u00b0 mit KI.")),
+        h("p", { className: "lead", style: { maxWidth: 540, marginTop: 22 } }, "Aus Kan\u00e4len, Daten und KI machen wir ein System, das immer aktiv ist und in Echtzeit messbar \u2014 von der ersten Idee bis zur Conversion."),
+        h("div", { style: { display: "flex", alignItems: "center", gap: 13, marginTop: "clamp(36px,5vw,56px)", color: "var(--muted)", fontFamily: "Poppins", fontSize: 12.5, letterSpacing: ".22em", textTransform: "uppercase" } },
+          h("span", { "aria-hidden": "true", style: { display: "inline-block", width: 1, height: 36, background: "linear-gradient(var(--accent), transparent)" } }),
+          "Weiter scrollen")),
+      h("div", { style: { display: "flex", justifyContent: "center", alignItems: "center" } },
+        h("img", { src: "assets/ansatz-arrow.png", alt: "", "aria-hidden": "true", className: "prozess-float", style: { width: "clamp(210px,28vw,380px)", height: "auto", filter: "drop-shadow(0 30px 52px color-mix(in srgb,var(--accent) 40%, transparent))" } }))));
+}
+
+function TeamSeite({ onBook }) {
+  const hero = h("section", { className: "grid-bg mglow", style: { position: "relative", overflow: "hidden", paddingTop: "clamp(132px,15vh,190px)", paddingBottom: "clamp(56px,8vw,96px)", borderBottom: "1px solid var(--line)" } },
+    h("div", { className: "wrap teamgrid", style: { position: "relative", zIndex: 1, display: "grid", gridTemplateColumns: "1.02fr .98fr", gap: "clamp(32px,4.5vw,64px)", alignItems: "center" } },
+      h("div", null,
+        h(Eyebrow, { num: "// team::mt" }, "Lernen Sie uns kennen"),
+        h("h1", { style: { fontFamily: "Poppins", fontWeight: 800, fontSize: "clamp(36px,5vw,72px)", lineHeight: 1.03, letterSpacing: "-.02em", textWrap: "balance", marginTop: 18 } }, "Das Team hinter ", h("span", { style: { color: "var(--accent)" } }, "Ihrem Erfolg.")),
+        h("p", { className: "lead", style: { maxWidth: 520, marginTop: 20 } }, "Individuelle Stärken, kreative Lösungen und 33+ Jahre Erfahrung — gemeinsam unschlagbar."),
+        h("div", { style: { display: "flex", gap: 14, flexWrap: "wrap", marginTop: 30 } },
+          h("button", { className: "btn btn-cta", onClick: onBook }, "Kontakt aufnehmen ", h(Icon, { name: "arrow", size: 16 }))),
+        h("div", { style: { display: "flex", flexWrap: "wrap", gap: "clamp(22px,3vw,46px)", marginTop: "clamp(32px,4.5vw,50px)" } },
+          [["33+", "Jahre Erfahrung"], ["10", "Expert:innen"], ["2", "Standorte · München & Köln"]].map(([k, v]) => h("div", { key: v },
+            h("div", { style: { fontFamily: "Poppins", fontWeight: 800, fontSize: "clamp(30px,3.6vw,50px)", lineHeight: 1, color: "var(--accent)" } }, k),
+            h("div", { style: { color: "var(--ink-dim)", fontSize: 13.5, marginTop: 7, fontFamily: "Poppins" } }, v))))),
+      h("div", { style: { position: "relative", aspectRatio: "4 / 3", borderRadius: 12, overflow: "hidden", background: "linear-gradient(160deg, var(--bg-1), var(--bg-2))", boxShadow: "inset 0 0 0 1px var(--line), 0 40px 90px rgba(20,40,70,.16)" } },
+        h("img", { src: "assets/team/group.avif", alt: "Das Team von team::mt", fetchpriority: "high", style: { position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center" } }),
+        h("div", { "aria-hidden": "true", style: { position: "absolute", top: 14, left: 14, width: 26, height: 26, borderTop: "2px solid var(--accent)", borderLeft: "2px solid var(--accent)" } }),
+        h("div", { "aria-hidden": "true", style: { position: "absolute", bottom: 14, right: 14, width: 26, height: 26, borderBottom: "2px solid var(--accent)", borderRight: "2px solid var(--accent)" } }))));
+
+  const manifesto = h("section", { className: "sec-pad grid-bg" },
+    h("div", { className: "wrap", style: { maxWidth: 820 } },
+      h(Eyebrow, { num: "// Unser team::mt" }, "Wer wir sind"),
+      h("h2", { style: { fontFamily: "Poppins", fontWeight: 800, fontSize: "clamp(28px,3.6vw,48px)", lineHeight: 1.06, letterSpacing: "-.01em", textWrap: "balance", marginTop: 14, marginBottom: 24 } }, "Alleine ist man stark — ", h("span", { style: { color: "var(--accent)" } }, "gemeinsam unschlagbar.")),
+      h("p", { className: "lead", style: { marginBottom: 16, maxWidth: 740 } }, "Seit über 33 Jahren sind wir mit voller Begeisterung am Markt — immer mit einem klaren Ziel: echten Mehrwert für unsere Kunden schaffen."),
+      h("p", { className: "lead", style: { marginBottom: 16, maxWidth: 740 } }, "Im B2B-Marketing setzen wir auf Strategien, die wirken — kombiniert mit Storytelling, klaren Nutzenargumenten und einer Prise Witz und Emotion. Unser Kunde steht stets im Mittelpunkt."),
+      h("p", { className: "lead", style: { marginBottom: 28, maxWidth: 740 } }, "Neue Herausforderungen und digitale Projekte treiben uns an. Wir liefern Lösungen, die greifen — persönlich, zuverlässig und leidenschaftlich."),
+      h("div", { style: { display: "flex", alignItems: "center", gap: 14 } },
+        h("div", { style: { width: 3, height: 42, background: "var(--accent)", borderRadius: 2 } }),
+        h("div", null,
+          h("div", { style: { fontFamily: "Poppins", fontWeight: 700, fontSize: 17 } }, "Martina Manich"),
+          h("div", { style: { color: "var(--muted)", fontSize: 13.5 } }, "Gründerin team::mt")))));
+
+  const werte = h("section", { className: "sec-pad grid-bg" },
+    h("div", { className: "wrap" },
+      h("div", { style: { textAlign: "center", maxWidth: 700, margin: "0 auto clamp(40px,5vw,64px)" } },
+        h("div", { style: { display: "flex", justifyContent: "center" } }, h(Eyebrow, { num: "// \u00dcber team::mt" }, "Wof\u00fcr wir stehen")),
+        h("h2", { style: { fontSize: "clamp(28px,4vw,48px)", marginTop: 12, textWrap: "balance" } }, "Werte, die uns ", h("span", { style: { color: "var(--accent)" } }, "antreiben."))),
+      h("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))", gap: "clamp(18px,2.2vw,28px)" } },
+        TEAM_VALUES.map(([ic, t, d]) => h("div", { key: t, style: { padding: "clamp(22px,2.4vw,30px)", borderRadius: 8, background: "var(--glass)", boxShadow: "inset 0 0 0 1px var(--glass-line)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" } },
+          h("span", { style: { display: "inline-grid", placeItems: "center", width: 46, height: 46, borderRadius: 8, color: "var(--accent)", background: "color-mix(in srgb,var(--accent) 12%, transparent)", marginBottom: 18 } }, h(Icon, { name: ic, size: 22 })),
+          h("div", { style: { fontFamily: "Poppins", fontWeight: 700, fontSize: 19, marginBottom: 7 } }, t),
+          h("p", { style: { color: "var(--ink-dim)", fontSize: 14.5, lineHeight: 1.5, margin: 0 } }, d))))));
+
+  const koepfe = h("section", { className: "sec-pad grid-bg mglow" },
+    h("div", { className: "wrap" },
+      h("div", { style: { maxWidth: 760, marginBottom: "clamp(40px,5vw,64px)" } },
+        h(Eyebrow, { num: "// Lernen Sie uns kennen" }, "Das Team"),
+        h("h2", { style: { fontSize: "clamp(28px,4vw,48px)", marginTop: 12, textWrap: "balance" } }, "Die K\u00f6pfe hinter ", h("span", { style: { color: "var(--accent)" } }, "team::mt."))),
+      h("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "clamp(22px,2.6vw,36px)" } },
+        TEAM_MEMBERS.map((m) => h(TeamMemberCard, { key: m.n, m: m })))));
+
+  const testi = h("section", { className: "sec-pad grid-bg" },
+    h("div", { className: "wrap" },
+      h("div", { style: { textAlign: "center", maxWidth: 700, margin: "0 auto clamp(40px,5vw,60px)" } },
+        h("div", { style: { display: "flex", justifyContent: "center" } }, h(Eyebrow, { num: "// Kundenstimmen" }, "Das sagen unsere Kunden")),
+        h("h2", { style: { fontSize: "clamp(28px,4vw,48px)", marginTop: 12, textWrap: "balance" } }, "Zusammenarbeit auf ", h("span", { style: { color: "var(--accent)" } }, "Augenh\u00f6he."))),
+      h("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "clamp(20px,2.4vw,30px)" } },
+        TEAM_TESTI.map(([q, n, r]) => h("figure", { key: n, style: { margin: 0, padding: "clamp(26px,2.6vw,34px)", borderRadius: 8, background: "var(--glass)", boxShadow: "inset 0 0 0 1px var(--glass-line)", display: "flex", flexDirection: "column", gap: 16 } },
+          h("span", { "aria-hidden": "true", style: { fontFamily: '"EB Garamond", Georgia, serif', fontSize: 46, lineHeight: .5, color: "var(--accent)" } }, "\u201d"),
+          h("blockquote", { style: { margin: 0, fontFamily: '"EB Garamond", Georgia, serif', fontSize: "clamp(17px,1.5vw,20px)", lineHeight: 1.5, color: "var(--ink)" } }, q),
+          h("figcaption", { style: { marginTop: "auto" } },
+            h("div", { style: { fontFamily: "Poppins", fontWeight: 600, fontSize: 15 } }, n),
+            h("div", { style: { color: "var(--muted)", fontSize: 13 } }, r)))))));
+
+  return h(React.Fragment, null, hero, manifesto, h(ScanCut, null), werte, h(ScanCut, null), koepfe, h(ScanCut, null), testi);
 }
 
 /* ----------------------------- App ----------------------------- */
@@ -2771,8 +2966,8 @@ function App() {
     // multipliers so each scroll input travels less and nothing feels frantic.
     const lenis = new window.Lenis({
       lerp: 0.06,
-      wheelMultiplier: 0.8,
-      touchMultiplier: 1.2,
+      wheelMultiplier: 0.96,
+      touchMultiplier: 1.44,
       smoothWheel: true
     });
     window.__lenis = lenis;
@@ -2898,16 +3093,34 @@ function App() {
       }
     }, 650);
   }, []);
+  const route = getRoute();
+  if (route === "ansatz" || route === "leistungen" || route === "team") {
+    const subs = {
+      ansatz: [h(AnsatzHero, { key: "ah" }), h(ScanCut, { key: "s0" }), h(GlassRing360, { key: "g", onBook: goBook, leistungenHref: "#/leistungen" }), h(ScanCut, { key: "s1" }), h(SoArbeitenWir, { key: "p" }), h(ScanCut, { key: "s2" }), h(BookingSection, { key: "b" })],
+      leistungen: [h(LeistungsIndex, { key: "li" }), h(LeistungenSection, { key: "ls", onBook: goBook }), h(ScanCut, { key: "s1" }), h(DreiPaketeSection, { key: "pk", onBook: goBook }), h(ScanCut, { key: "s2" }), h(BookingSection, { key: "b" })],
+      team: [h(TeamSeite, { key: "tm", onBook: goBook }), h(ScanCut, { key: "s2" }), h(BookingSection, { key: "b" })]
+    };
+    const sub = subs[route];
+    return h(React.Fragment, null,
+      h(TopBar, { onBook: goBook, route: route }),
+      h("main", null, sub),
+      h(SiteFooter, { onBook: goBook }),
+      h(StickyCTA, { onBook: goBook }),
+      h(GlobalScanCursor, null),
+      h(TweaksPanel, null,
+        h(TweakSection, { label: "Farben" }),
+        h(TweakColor, { label: "Leitfarbe", value: t.accentPair, options: [["#db0a30", "#06d6a0"], ["#e23a2e", "#06d6a0"], ["#c81d4a", "#1fb6ff"], ["#0a8d83", "#12a06a"]], onChange: v => setTweak("accentPair", v) }),
+        h(TweakColor, { label: "CTA-Farbe", value: t.cta, options: ["#db0a30", "#e23a2e", "#ff5a3c", "#c20029"], onChange: v => setTweak("cta", v) })));
+  }
   return /*#__PURE__*/React.createElement(React.Fragment, null, h(HeroBootReveal, null), /*#__PURE__*/React.createElement(TopBar, {
-    onBook: goBook
+    onBook: goBook,
+    route: route
   }), /*#__PURE__*/React.createElement(Hero, {
     tweaks: t,
     onBook: goBook
   }), h(GlassRing360, { onBook: goBook }), h(ScanCut, null), h(LeistungenSection, { onBook: goBook }), h(ScanCut, null), h(DreiPaketeSection, {
     onBook: goBook
-  }), h(ScanCut, null), h(BookingSection, null), h(ScanCut, null), h(AbschlussCTA, { onBook: goBook }), h(ScanCut, null), h(SoArbeitenWir, null), h(TrustStrip, null), h(Marquee, {
-    items: CONTENT.marquee
-  }), h(ScanCut, null), h(KiLaborSection, { onBook: goBook }), h(GumballScrollSection, null), h(SiteFooter, {
+  }), h(ScanCut, null), h(BookingSection, null), h(ScanCut, null), h(AbschlussCTA, { onBook: goBook }), h(SiteFooter, {
     onBook: goBook
   }), /*#__PURE__*/React.createElement(StickyCTA, {
     onBook: goBook
@@ -2937,5 +3150,9 @@ function App() {
     onChange: v => setTweak("intensity", v)
   })));
 }
+(function () {
+  var __r0 = getRoute();
+  window.addEventListener("hashchange", function () { if (getRoute() !== __r0) { try { window.scrollTo(0, 0); } catch (e) {} window.location.reload(); } });
+})();
 ReactDOM.createRoot(document.getElementById("app")).render(/*#__PURE__*/React.createElement(App, null));
 })();
