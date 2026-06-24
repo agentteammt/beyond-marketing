@@ -2912,20 +2912,37 @@ function HerkunftSection() {
     reveal();
     return cleanup;
   }, []);
+  const [wide, setWide] = useState(typeof window !== "undefined" && window.matchMedia ? window.matchMedia("(min-width: 760px)").matches : true);
+  useEffect(() => {
+    if (!window.matchMedia) return;
+    const mq = window.matchMedia("(min-width: 760px)");
+    const on = () => setWide(mq.matches);
+    on();
+    mq.addEventListener ? mq.addEventListener("change", on) : mq.addListener(on);
+    return () => { mq.removeEventListener ? mq.removeEventListener("change", on) : mq.removeListener(on); };
+  }, []);
   return h("section", { className: "sec-pad grid-bg", style: { borderTop: "1px solid var(--line)" } },
     h(Reveal, { className: "wrap", style: { maxWidth: 980, marginLeft: "auto", marginRight: "auto" } },
       h(Eyebrow, { num: "// Seit 1993" }, "Die Agentur hinter Beyond Marketing"),
       h("h2", { style: { fontFamily: "Poppins", fontWeight: 800, fontSize: "clamp(28px,4vw,52px)", lineHeight: 1.04, letterSpacing: "-.02em", textWrap: "balance", marginTop: 14, marginBottom: 18, maxWidth: 760 } }, "33 Jahre Marketing. ", h("span", { style: { color: "var(--accent)" } }, "Ein neues Kapitel.")),
       h("p", { className: "lead", style: { maxWidth: 660, marginBottom: "clamp(40px,5vw,62px)" } }, "Beyond Marketing ist kein Start-up-Experiment, sondern die n\u00e4chste Stufe von team::mt \u2014 einer B2B-Marketing-Agentur, die seit 1993 mit Unternehmen w\u00e4chst. Vom Printkatalog \u00fcber digitale Kampagnen bis zur KI."),
-      h("div", { ref: trackRef, style: { position: "relative", marginBottom: "clamp(40px,5vw,62px)" } },
-        h("div", { "aria-hidden": "true", className: "kiw-tl-line", style: { position: "absolute", left: 5, top: 6, bottom: 6, width: 2, background: "linear-gradient(180deg, var(--line-strong), var(--accent))", transformOrigin: "top center", transform: shown ? "scaleY(1)" : "scaleY(0)", transition: "transform 1.2s cubic-bezier(.2,.8,.2,1)", animation: shown ? "kiwLinePulse 2.8s ease-in-out infinite" : "none" } }),
-        nodes.map((n, i) => h("div", { key: i, style: { position: "relative", display: "flex", gap: 18, paddingBottom: i === nodes.length - 1 ? 0 : "clamp(22px,3vw,34px)", opacity: shown ? 1 : 0, transform: shown ? "translateY(0)" : "translateY(16px)", transition: "opacity .55s ease " + (0.3 + i * 0.16) + "s, transform .6s cubic-bezier(.2,.8,.2,1) " + (0.3 + i * 0.16) + "s" } },
-          h("div", { style: { flex: "none", width: 12, display: "flex", justifyContent: "center", paddingTop: 4 } },
-            h("div", { "aria-hidden": "true", className: n.hot ? "kiw-tl-dot" : null, style: { width: 12, height: 12, borderRadius: "50%", background: n.hot ? "var(--accent)" : "var(--bg-0)", boxShadow: n.hot ? "0 0 0 4px color-mix(in srgb,var(--accent) 26%, transparent)" : "inset 0 0 0 2px var(--accent)", transform: shown ? "scale(1)" : "scale(0)", transition: "transform .5s cubic-bezier(.34,1.56,.64,1) " + (0.35 + i * 0.16) + "s", animation: (shown && n.hot) ? "kiwDotPulse 2.8s ease-in-out infinite" : "none" } })),
-          h("div", { style: { flex: "1 1 auto", paddingLeft: 10 } },
-            h("div", { style: { fontFamily: "Poppins", fontWeight: 800, fontSize: "clamp(18px,2.2vw,22px)", lineHeight: 1.15, letterSpacing: "-.01em", color: n.hot ? "var(--accent)" : "var(--ink)" } }, n.y),
-            h("div", { style: { fontFamily: "Poppins", fontWeight: 600, fontSize: 13.5, marginTop: 6, color: "var(--ink-dim)" } }, n.t),
-            h("div", { style: { fontSize: 14, lineHeight: 1.5, color: "var(--muted)", marginTop: 6, maxWidth: 580 } }, n.s))))),
+      wide
+        ? h("div", { ref: trackRef, style: { position: "relative", display: "flex", gap: 18, marginBottom: "clamp(40px,5vw,62px)" } },
+            h("div", { "aria-hidden": "true", className: "kiw-tl-line", style: { position: "absolute", left: 8, right: 8, top: 7, height: 2, background: "linear-gradient(90deg, var(--line-strong), var(--accent))", transformOrigin: "left center", transform: shown ? "scaleX(1)" : "scaleX(0)", transition: "transform 1.2s cubic-bezier(.2,.8,.2,1)", animation: shown ? "kiwLinePulse 2.8s ease-in-out infinite" : "none" } }),
+            nodes.map((n, i) => h("div", { key: i, style: { position: "relative", flex: "1 1 0", minWidth: 0, display: "flex", flexDirection: "column", opacity: shown ? 1 : 0, transform: shown ? "translateY(0)" : "translateY(16px)", transition: "opacity .55s ease " + (0.3 + i * 0.16) + "s, transform .6s cubic-bezier(.2,.8,.2,1) " + (0.3 + i * 0.16) + "s" } },
+              h("div", { "aria-hidden": "true", className: n.hot ? "kiw-tl-dot" : null, style: { width: 12, height: 12, borderRadius: "50%", background: n.hot ? "var(--accent)" : "var(--bg-0)", boxShadow: n.hot ? "0 0 0 4px color-mix(in srgb,var(--accent) 26%, transparent)" : "inset 0 0 0 2px var(--accent)", marginBottom: 16, transform: shown ? "scale(1)" : "scale(0)", transition: "transform .5s cubic-bezier(.34,1.56,.64,1) " + (0.35 + i * 0.16) + "s", animation: (shown && n.hot) ? "kiwDotPulse 2.8s ease-in-out infinite" : "none" } }),
+              h("div", { style: { fontFamily: "Poppins", fontWeight: 800, fontSize: 18, lineHeight: 1.15, letterSpacing: "-.01em", minHeight: 42, color: n.hot ? "var(--accent)" : "var(--ink)" } }, n.y),
+              h("div", { style: { fontFamily: "Poppins", fontWeight: 600, fontSize: 13.5, marginTop: 8, minHeight: 20, color: "var(--ink-dim)" } }, n.t),
+              h("div", { style: { fontSize: 13, lineHeight: 1.5, color: "var(--muted)", marginTop: 8 } }, n.s))))
+        : h("div", { ref: trackRef, style: { position: "relative", marginBottom: "clamp(40px,5vw,62px)" } },
+            h("div", { "aria-hidden": "true", className: "kiw-tl-line", style: { position: "absolute", left: 5, top: 6, bottom: 6, width: 2, background: "linear-gradient(180deg, var(--line-strong), var(--accent))", transformOrigin: "top center", transform: shown ? "scaleY(1)" : "scaleY(0)", transition: "transform 1.2s cubic-bezier(.2,.8,.2,1)", animation: shown ? "kiwLinePulse 2.8s ease-in-out infinite" : "none" } }),
+            nodes.map((n, i) => h("div", { key: i, style: { position: "relative", display: "flex", gap: 18, paddingBottom: i === nodes.length - 1 ? 0 : "clamp(22px,3vw,34px)", opacity: shown ? 1 : 0, transform: shown ? "translateY(0)" : "translateY(16px)", transition: "opacity .55s ease " + (0.3 + i * 0.16) + "s, transform .6s cubic-bezier(.2,.8,.2,1) " + (0.3 + i * 0.16) + "s" } },
+              h("div", { style: { flex: "none", width: 12, display: "flex", justifyContent: "center", paddingTop: 4 } },
+                h("div", { "aria-hidden": "true", className: n.hot ? "kiw-tl-dot" : null, style: { width: 12, height: 12, borderRadius: "50%", background: n.hot ? "var(--accent)" : "var(--bg-0)", boxShadow: n.hot ? "0 0 0 4px color-mix(in srgb,var(--accent) 26%, transparent)" : "inset 0 0 0 2px var(--accent)", transform: shown ? "scale(1)" : "scale(0)", transition: "transform .5s cubic-bezier(.34,1.56,.64,1) " + (0.35 + i * 0.16) + "s", animation: (shown && n.hot) ? "kiwDotPulse 2.8s ease-in-out infinite" : "none" } })),
+              h("div", { style: { flex: "1 1 auto", paddingLeft: 10 } },
+                h("div", { style: { fontFamily: "Poppins", fontWeight: 800, fontSize: "clamp(18px,2.2vw,22px)", lineHeight: 1.15, letterSpacing: "-.01em", color: n.hot ? "var(--accent)" : "var(--ink)" } }, n.y),
+                h("div", { style: { fontFamily: "Poppins", fontWeight: 600, fontSize: 13.5, marginTop: 6, color: "var(--ink-dim)" } }, n.t),
+                h("div", { style: { fontSize: 14, lineHeight: 1.5, color: "var(--muted)", marginTop: 6, maxWidth: 580 } }, n.s))))),
       h("div", { style: { fontFamily: "Poppins", fontSize: 12.5, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--muted)", marginBottom: 16 } }, "Mehr als KI \u2014 das ganze Haus"),
       h("div", { style: { display: "flex", flexWrap: "wrap", gap: 10, marginBottom: "clamp(34px,4vw,48px)" } },
         services.map(([label, href]) => h("a", { key: href, href: href, target: "_blank", rel: "noopener noreferrer", style: { display: "inline-flex", alignItems: "center", padding: "9px 15px", borderRadius: 999, fontFamily: "Poppins", fontWeight: 500, fontSize: 13.5, color: "var(--ink)", background: "var(--glass)", boxShadow: "inset 0 0 0 1px var(--line)", transition: "color .2s, box-shadow .2s" }, onMouseEnter: chip, onMouseLeave: unchip }, label))),
