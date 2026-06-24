@@ -574,7 +574,7 @@ function HeroBootReveal() {
     if (reduce) return;
     const GLYPHS = "ABCDEFGHJKLMNPQRSTUVWXYZ0123456789#%&/<>*+-";
     const BEAM_MS = 5500, HOLD = 520, EXIT = 560, SCRAMBLE = 460, STAGGER = 32;
-    let raf = 0, start = performance.now(), cancelled = false, exitT = 0, chars = null, headCrossT = 0, headOrig = null;
+    let raf = 0, start = performance.now(), cancelled = false, exitT = 0, chars = null, headCrossT = 0, headOrig = null, restored = false;
     const ease = function (t) { return -(Math.cos(Math.PI * t) - 1) / 2; };
     const splitHead = function () {
       const h1 = document.querySelector("#top h1");
@@ -606,8 +606,7 @@ function HeroBootReveal() {
       } catch (e) { chars = null; }
     };
     const frame = function (now) {
-      if (cancelled) return;
-      const t = now - start;
+      if (cancelled) return;      const t = now - start;
       const bp = Math.min(1, t / BEAM_MS);
       const by = ease(bp) * 106;
       const byPx = by / 100 * window.innerHeight;
@@ -616,8 +615,8 @@ function HeroBootReveal() {
       if (beamWrapRef.current) beamWrapRef.current.style.top = by.toFixed(2) + "%";
       if (beamRef.current) beamRef.current.style.opacity = (bp < 0.997 ? 1 : 0).toString();
       if (readRef.current) readRef.current.textContent = Math.min(100, Math.round(bp * 100)) + "%";
-      if (!chars) splitHead();
-      if (chars && chars.length) {
+      if (!chars && !finishedRef.current) splitHead();
+      if (chars && chars.length && !finishedRef.current) {
         const h1 = document.querySelector("#top h1");
         const top = h1 ? h1.getBoundingClientRect().top : 1e9;
         if (!headCrossT && byPx >= top) headCrossT = now;
@@ -637,6 +636,7 @@ function HeroBootReveal() {
       }
       if (t >= BEAM_MS + HOLD && !finishedRef.current) { finishedRef.current = true; exitT = now; }
       if (finishedRef.current) {
+        if (!restored) { restored = true; var h1f = document.querySelector("#top h1"); if (h1f && headOrig != null) { h1f.innerHTML = headOrig; delete h1f.dataset.kiwSplit; chars = null; } }
         const ep = Math.min(1, (now - exitT) / EXIT);
         if (rootRef.current) rootRef.current.style.opacity = (1 - ep).toFixed(3);
         if (ep >= 1) { cancelled = true; try { window.dispatchEvent(new Event("kiw:introdone")); } catch (e) {} setGone(true); return; }
