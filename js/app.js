@@ -93,6 +93,13 @@ function TopBar({
   route
 }) {
   const [solid, setSolid] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKey = e => { if (e.key === "Escape") setMenuOpen(false); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [menuOpen]);
   useEffect(() => {
     const onS = () => setSolid(window.scrollY > 40);
     onS();
@@ -136,7 +143,42 @@ function TopBar({
     className: "btn btn-cta topbar-cta",
     style: { padding: "11px 20px", fontSize: 14 },
     onClick: onBook
-  }, "Gespräch anfragen")));
+  }, "Gespräch anfragen"), h("button", {
+    className: "navburger",
+    "aria-label": menuOpen ? "Menü schließen" : "Menü öffnen",
+    "aria-expanded": menuOpen ? "true" : "false",
+    onClick: () => setMenuOpen(o => !o),
+    style: { display: "none", alignItems: "center", justifyContent: "center", width: 42, height: 42, marginLeft: 4, background: "transparent", border: "1px solid var(--line-strong)", borderRadius: 6, cursor: "pointer", color: "var(--ink)", flex: "none" }
+  }, h("span", { "aria-hidden": "true", style: { position: "relative", display: "block", width: 18, height: 12 } },
+    ["top", "mid", "bot"].map((k, i) => h("span", { key: k, style: { position: "absolute", left: 0, right: 0, height: 2, borderRadius: 2, background: "currentColor", transition: "transform .28s cubic-bezier(.2,.8,.2,1), opacity .2s", top: i === 0 ? 0 : i === 1 ? 5 : 10, transform: menuOpen ? (i === 0 ? "translateY(5px) rotate(45deg)" : i === 1 ? "scaleX(0)" : "translateY(-5px) rotate(-45deg)") : "none", opacity: menuOpen && i === 1 ? 0 : 1 } }))))),
+    h("div", {
+      className: "navmenu",
+      style: { position: "fixed", inset: 0, zIndex: 95, display: "none", flexDirection: "column", justifyContent: "center", background: "color-mix(in srgb, var(--bg-0) 96%, transparent)", backdropFilter: "blur(18px)", WebkitBackdropFilter: "blur(18px)", padding: "96px 32px 44px", opacity: menuOpen ? 1 : 0, pointerEvents: menuOpen ? "auto" : "none", transition: "opacity .35s ease", overflowY: "auto" },
+      "aria-hidden": menuOpen ? "false" : "true"
+    },
+      h("nav", { style: { display: "flex", flexDirection: "column" } },
+        [["Ansatz", "ansatz"], ["Leistungen", "leistungen"], ["Team", "team"]].map(([label, id], i) => {
+          const active = route === id;
+          const dl = menuOpen ? (0.14 + i * 0.08) : 0;
+          return h("a", {
+            key: id, href: "#/" + id, onClick: () => setMenuOpen(false),
+            style: { display: "flex", alignItems: "baseline", gap: 16, fontFamily: "Poppins", fontWeight: 700, fontSize: "clamp(34px,11vw,56px)", letterSpacing: "-.02em", lineHeight: 1.06, color: active ? "var(--accent)" : "var(--ink)", textDecoration: "none", padding: "14px 0", borderBottom: "1px solid var(--line)", opacity: menuOpen ? 1 : 0, transform: menuOpen ? "translateY(0)" : "translateY(30px)", transition: "opacity .5s cubic-bezier(.2,.8,.2,1) " + dl + "s, transform .62s cubic-bezier(.2,.8,.2,1) " + dl + "s" },
+            onMouseEnter: e => e.currentTarget.style.color = "var(--accent)",
+            onMouseLeave: e => e.currentTarget.style.color = active ? "var(--accent)" : "var(--ink)"
+          },
+            h("span", { "aria-hidden": "true", style: { fontFamily: '"EB Garamond", Georgia, serif', fontStyle: "italic", fontWeight: 500, fontSize: "clamp(13px,3.4vw,17px)", color: "var(--accent)", flex: "none" } }, "0" + (i + 1)),
+            h("span", null, label));
+        })),
+      (function () {
+        const dl = menuOpen ? (0.14 + 3 * 0.08) : 0;
+        const ent = { opacity: menuOpen ? 1 : 0, transform: menuOpen ? "translateY(0)" : "translateY(30px)", transition: "opacity .5s ease " + dl + "s, transform .62s cubic-bezier(.2,.8,.2,1) " + dl + "s" };
+        return h("div", { style: { marginTop: 38, ...ent } },
+          h("button", { className: "btn btn-cta", style: { width: "100%" }, onClick: () => { setMenuOpen(false); onBook(); } }, "Gespräch anfragen ", h(Icon, { name: "arrow", size: 16 })),
+          h("div", { style: { display: "flex", gap: 14, flexWrap: "wrap", marginTop: 22, color: "var(--muted)", fontFamily: "Poppins", fontSize: 13.5 } },
+            h("span", null, "Rosenheim & Köln"),
+            h("span", { "aria-hidden": "true", style: { color: "var(--accent)" } }, "·"),
+            h("a", { href: "https://www.team-mt.de", target: "_blank", rel: "noopener noreferrer", style: { color: "var(--muted)", textDecoration: "none" } }, "team-mt.de")));
+      })()));
 }
 
 /* ----------------------------- Parallax fallback hero ----------------------------- */
@@ -329,6 +371,25 @@ function Hero({
     const id = requestAnimationFrame(playOnce);
     return () => cancelAnimationFrame(id);
   }, []);
+  // Mobil: 3D-Objekt exakt auf die vertikale Mitte der Headline ausrichten (robust gegen Intro/Layout)
+  useEffect(() => {
+    const sec = heroRef.current; if (!sec) return;
+    const align = () => {
+      const glass = sec.querySelector(".hero-glass");
+      if (!glass) return;
+      const mobile = window.matchMedia("(max-width:860px)").matches;
+      const head = sec.querySelector("h1") || sec.querySelector(".tw-line") || sec.querySelector("p");
+      if (!mobile || !head) { glass.style.removeProperty("top"); return; }
+      const sr = sec.getBoundingClientRect(), hr = head.getBoundingClientRect();
+      const center = (hr.top + hr.height / 2) - sr.top;
+      glass.style.setProperty("top", center + "px", "important");
+    };
+    align();
+    const id = setInterval(align, 200);
+    const stop = setTimeout(() => clearInterval(id), 2200);
+    window.addEventListener("resize", align);
+    return () => { clearInterval(id); clearTimeout(stop); window.removeEventListener("resize", align); };
+  }, []);
   const T = intro.timing;
   const typing = intro.phase === "type";
   const textDone = intro.phase === "done";
@@ -355,7 +416,7 @@ function Hero({
   }, /*#__PURE__*/React.createElement("div", {
     style: { position: "absolute", inset: "-12%", borderRadius: "50%", zIndex: 0, background: "radial-gradient(circle, color-mix(in srgb,var(--accent) 30%, transparent), transparent 62%)", filter: "blur(40px)", pointerEvents: "none" }
   }), /*#__PURE__*/React.createElement("video", {
-    ref: glassRef, src: "assets/glass-logo.mp4", muted: true, playsInline: true, preload: "auto",
+    ref: glassRef, src: "assets/glass-logo.mp4", muted: true, playsInline: true, preload: "metadata",
     style: { position: "relative", zIndex: 1, width: "100%", display: "block", transition: "transform .25s ease-out", filter: "brightness(1.14) contrast(1.05) saturate(1.14) drop-shadow(0 28px 56px color-mix(in srgb,var(--accent) 32%, transparent))", WebkitMaskImage: "radial-gradient(ellipse 58% 60% at 50% 50%, #000 45%, rgba(0,0,0,0) 82%)", maskImage: "radial-gradient(ellipse 58% 60% at 50% 50%, #000 45%, rgba(0,0,0,0) 82%)" }
   })), /*#__PURE__*/React.createElement("div", {
     "aria-hidden": "true", style: { position: "absolute", inset: 0, zIndex: 1, pointerEvents: "none", background: "radial-gradient(130% 110% at 62% 42%, transparent 55%, rgba(14,27,46,.13) 100%)" }
@@ -430,7 +491,7 @@ function Hero({
     name: "arrow",
     size: 16
   })), /*#__PURE__*/React.createElement("button", {
-    className: "btn btn-ghost",
+    className: "btn btn-ghost hero-secondary",
     onClick: () => scrollToId("ansatz")
   }, "Unser Ansatz")), /*#__PURE__*/React.createElement("div", {
     style: Object.assign({
@@ -445,7 +506,7 @@ function Hero({
     label: "360°-KI-Marketing"
   }), /*#__PURE__*/React.createElement(Meta, {
     icon: "pin",
-    label: "München"
+    label: "Rosenheim & Köln"
   }), /*#__PURE__*/React.createElement(Meta, {
     icon: "spark",
     label: "33 Jahre B2B-Erfahrung"
@@ -1050,7 +1111,7 @@ function MissionControlSection({
       marginBottom: 18,
       maxWidth: 620
     }
-  }, "Wir sind eine Marketing-Agentur aus M\xFCnchen, die Marketing-Abteilungen KI-f\xE4hig macht \u2014 von Sichtbarkeit bis Automatisierung. Die KI-Werkstatt ist unser Stand, an dem wir genau das live zeigen."), /*#__PURE__*/React.createElement("div", {
+  }, "Wir sind eine Marketing-Agentur aus Rosenheim & K\u00f6ln, die Marketing-Abteilungen KI-f\xE4hig macht \u2014 von Sichtbarkeit bis Automatisierung. Die KI-Werkstatt ist unser Stand, an dem wir genau das live zeigen."), /*#__PURE__*/React.createElement("div", {
     className: "display",
     style: {
       fontSize: "clamp(18px,2.2vw,26px)",
@@ -2015,7 +2076,7 @@ function GlassRing360({ onBook, leistungenHref, forceStatic }) {
           h("p", { className: "lead", style: { maxWidth: 640, margin: "18px auto 0" } }, "Marketing-Abteilungen sollen mehr leisten, schneller liefern und gleichzeitig effizienter werden — mit denselben Teams. KI ist die einzige Antwort, die diese Gleichung auflöst. Sie trennt gerade zwei Lager: die, die ihre Schlagkraft vervielfachen, und die, die zusehen.")),
         h("div", { style: { marginTop: "clamp(48px,6vw,82px)" } },
           h("div", { style: { display: "flex", justifyContent: "center", marginBottom: 28 } }, h(Eyebrow, { num: "// 02" }, "360° im KI-Marketing")),
-          h("div", { style: { position: "relative", width: "min(440px,82vw)", margin: "0 auto clamp(28px,4vw,52px)", aspectRatio: "1 / 1" } }, h("video", { src: "assets/glass-logo.mp4", autoPlay: true, muted: true, loop: true, playsInline: true, preload: "auto", "aria-hidden": "true", style: { width: "100%", height: "100%", objectFit: "cover", filter: "brightness(1.12) contrast(1.05) saturate(1.1)", WebkitMaskImage: "radial-gradient(ellipse 60% 62% at 50% 50%, #000 46%, rgba(0,0,0,0) 90%)", maskImage: "radial-gradient(ellipse 60% 62% at 50% 50%, #000 46%, rgba(0,0,0,0) 90%)" } })),
+          h("div", { style: { position: "relative", width: "min(440px,82vw)", margin: "0 auto clamp(28px,4vw,52px)", aspectRatio: "1 / 1" } }, h("video", { src: "assets/glass-logo.mp4", autoPlay: true, muted: true, loop: true, playsInline: true, preload: "metadata", "aria-hidden": "true", style: { width: "100%", height: "100%", objectFit: "cover", filter: "brightness(1.12) contrast(1.05) saturate(1.1)", WebkitMaskImage: "radial-gradient(ellipse 60% 62% at 50% 50%, #000 46%, rgba(0,0,0,0) 90%)", maskImage: "radial-gradient(ellipse 60% 62% at 50% 50%, #000 46%, rgba(0,0,0,0) 90%)" } })),
           h("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "22px 40px" } },
             channels.map(([ic, ch, be]) => h("div", { key: ch, style: { display: "flex", gap: 14, alignItems: "flex-start" } },
               h("span", { style: { color: "var(--accent)", flex: "none", marginTop: 2 } }, h(Icon, { name: ic, size: 22 })),
@@ -2085,7 +2146,7 @@ function GlassRing360({ onBook, leistungenHref, forceStatic }) {
             d.eyebrow),
           h("span", { className: "lidx-go" }, h(Icon, { name: "arrow", size: 20 }))))),
         leistungenHref ? h("a", { href: leistungenHref, className: "btn btn-cta", style: { display: "inline-flex", alignItems: "center", gap: 10, marginTop: "clamp(24px,3vw,38px)", textDecoration: "none" } }, "Alle Leistungen ansehen ", h(Icon, { name: "arrow", size: 16 })) : null) ),
-    h("video", { ref: videoRef, src: "assets/glass-logo.mp4", muted: true, playsInline: true, preload: "auto", style: { position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", zIndex: 1, background: "#fff", opacity: 0, transform: "translateY(10%) scale(0.7)", transformOrigin: "center", filter: "brightness(1.16) contrast(1.06) saturate(1.12)", WebkitMaskImage: "radial-gradient(ellipse 60% 62% at 50% 50%, #000 46%, rgba(0,0,0,0) 90%)", maskImage: "radial-gradient(ellipse 60% 62% at 50% 50%, #000 46%, rgba(0,0,0,0) 90%)" } }),
+    h("video", { ref: videoRef, src: "assets/glass-logo.mp4", muted: true, playsInline: true, preload: "metadata", style: { position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", zIndex: 1, background: "#fff", opacity: 0, transform: "translateY(10%) scale(0.7)", transformOrigin: "center", filter: "brightness(1.16) contrast(1.06) saturate(1.12)", WebkitMaskImage: "radial-gradient(ellipse 60% 62% at 50% 50%, #000 46%, rgba(0,0,0,0) 90%)", maskImage: "radial-gradient(ellipse 60% 62% at 50% 50%, #000 46%, rgba(0,0,0,0) 90%)" } }),
     h("div", { ref: scanRef, "aria-hidden": "true", style: { position: "absolute", left: "50%", top: "calc(50% + 10vh)", transform: "translate(-50%,-50%)", width: "min(58vh,54vw)", height: "min(58vh,54vw)", zIndex: 6, opacity: 0, pointerEvents: "none", willChange: "opacity" } },
       h("div", { ref: scanFillRef, "aria-hidden": "true", style: { position: "absolute", left: 0, right: 0, top: 0, height: "0%", overflow: "hidden", background: "linear-gradient(180deg, color-mix(in srgb,var(--accent) 14%, transparent), color-mix(in srgb,var(--accent) 4%, transparent))" } },
         h("div", { style: { position: "absolute", inset: 0, backgroundImage: "linear-gradient(color-mix(in srgb,var(--accent) 32%,transparent) 1px,transparent 1px),linear-gradient(90deg,color-mix(in srgb,var(--accent) 32%,transparent) 1px,transparent 1px)", backgroundSize: "30px 30px", opacity: .5 } })),
@@ -2419,11 +2480,12 @@ function LeistungChapter({ d, flip, onBook }) {
       const want = p > 0.55;
       if (want !== revLocal) { revLocal = want; setRev(want); }
     };
+    let maxP = 0;
     const st = ScrollTrigger.create({
       trigger: stage, start: "top top",
       end: () => "+=" + window.innerHeight * (d.video ? 4.2 : 1.35),
       pin: true, pinSpacing: true,
-      onUpdate: self => paint(self.progress) });
+      onUpdate: self => { const p = self.progress; if (p > maxP) maxP = p; paint(maxP >= 0.95 ? 1 : maxP); } });
     paint(0);
     const refresh = () => ScrollTrigger.refresh();
     const t = setTimeout(refresh, 450); window.addEventListener("load", refresh);
@@ -2442,7 +2504,7 @@ function LeistungChapter({ d, flip, onBook }) {
     h("div", { ref: stageRef, style: { position: "relative", height: "100vh", overflow: "hidden", display: "flex", alignItems: "center" } },
       h("div", { ref: lightRef, "aria-hidden": "true", style: { position: "absolute", left: "50%", top: "50%", width: "60vmin", height: "60vmin", transform: "translate(-50%,-50%)", borderRadius: "50%", background: "radial-gradient(circle, #fff 0%, rgba(255,255,255,.7) 18%, transparent 60%)", filter: "blur(8px)", opacity: 0, zIndex: 1, pointerEvents: "none" } }),
       h("div", { ref: flashRef, "aria-hidden": "true", style: { position: "absolute", left: "50%", top: "50%", width: "72vmin", height: "72vmin", transform: "translate(-50%,-50%)", borderRadius: "50%", opacity: 0, zIndex: 2, pointerEvents: "none", mixBlendMode: "screen", background: "conic-gradient(from 0deg, transparent, color-mix(in srgb,var(--accent) 55%, transparent), #fff, color-mix(in srgb,var(--accent) 55%, transparent), transparent)", filter: "blur(14px)" } }),
-      d.video ? h("video", { ref: iconRef, src: d.video, muted: true, playsInline: true, preload: "auto", "aria-label": d.eyebrow, style: { position: "absolute", left: "50%", top: "50%", width: "min(72vh,66vw)", height: "auto", transformOrigin: "center", transform: "translate(-50%,-50%) scale(0.14)", opacity: 0, zIndex: 4, pointerEvents: "none", filter: "brightness(1.42) contrast(1.12) saturate(1.2) drop-shadow(0 24px 50px color-mix(in srgb,var(--accent) 28%, transparent))", willChange: "transform, opacity", WebkitMaskImage: "radial-gradient(ellipse 82% 82% at 50% 50%, #000 64%, rgba(0,0,0,0) 94%)", maskImage: "radial-gradient(ellipse 82% 82% at 50% 50%, #000 64%, rgba(0,0,0,0) 94%)" } }) : h("img", { ref: iconRef, src: d.img, alt: d.eyebrow, style: { position: "absolute", left: "50%", top: "50%", width: "min(72vh,66vw)", height: "auto", transformOrigin: "center", transform: "translate(-50%,-50%) scale(0.14)", opacity: 0, zIndex: 4, pointerEvents: "none", filter: "drop-shadow(0 30px 60px color-mix(in srgb,var(--accent) 36%, transparent))", willChange: "transform, opacity" } }),
+      d.video ? h("video", { ref: iconRef, src: d.video, muted: true, playsInline: true, preload: "metadata", "aria-label": d.eyebrow, style: { position: "absolute", left: "50%", top: "50%", width: "min(72vh,66vw)", height: "auto", transformOrigin: "center", transform: "translate(-50%,-50%) scale(0.14)", opacity: 0, zIndex: 4, pointerEvents: "none", filter: "brightness(1.42) contrast(1.12) saturate(1.2) drop-shadow(0 24px 50px color-mix(in srgb,var(--accent) 28%, transparent))", willChange: "transform, opacity", WebkitMaskImage: "radial-gradient(ellipse 82% 82% at 50% 50%, #000 64%, rgba(0,0,0,0) 94%)", maskImage: "radial-gradient(ellipse 82% 82% at 50% 50%, #000 64%, rgba(0,0,0,0) 94%)" } }) : h("img", { ref: iconRef, src: d.img, alt: d.eyebrow, style: { position: "absolute", left: "50%", top: "50%", width: "min(72vh,66vw)", height: "auto", transformOrigin: "center", transform: "translate(-50%,-50%) scale(0.14)", opacity: 0, zIndex: 4, pointerEvents: "none", filter: "drop-shadow(0 30px 60px color-mix(in srgb,var(--accent) 36%, transparent))", willChange: "transform, opacity" } }),
       h("div", { ref: titleRef, "aria-hidden": "true", style: { position: "absolute", left: "50%", top: "50%", zIndex: 5, transform: "translate(-50%, 32vh)", textAlign: "center", opacity: 0, pointerEvents: "none", willChange: "opacity, transform" } },
         h("div", { style: { fontFamily: '"EB Garamond", Georgia, serif', fontStyle: "italic", fontSize: "clamp(13px,1.4vw,17px)", letterSpacing: ".02em", color: "var(--muted)", marginBottom: 6 } }, d.num.replace("// ", "")),
         h("div", { style: { fontFamily: "Poppins", fontWeight: 700, fontSize: "clamp(26px,3.6vw,52px)", letterSpacing: "-.015em", color: "var(--ink)", lineHeight: 1.04 } },
@@ -2787,7 +2849,7 @@ function GumballScrollSection() {
   }, []);
   return h("section", { ref: wrapRef, style: { position: "relative", height: "300vh", background: "#fff", borderTop: "1px solid var(--line)" } },
     h("div", { style: { position: "sticky", top: 0, height: "100vh", overflow: "hidden", background: "#fff" } },
-      h("video", { ref: vidRef, src: "assets/leistungen/social.mp4", muted: true, playsInline: true, preload: "auto", style: { position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" } })));
+      h("video", { ref: vidRef, src: "assets/leistungen/social.mp4", muted: true, playsInline: true, preload: "metadata", style: { position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" } })));
 }
 function AbschlussCTA({ onBook }) {
   return h("section", { style: { position: "relative", overflow: "hidden", padding: "clamp(96px,14vw,180px) 0", borderTop: "1px solid var(--line)" } },
@@ -2802,15 +2864,80 @@ function AbschlussCTA({ onBook }) {
         h("button", { className: "btn btn-ghost", onClick: onBook }, "KI-Werkstatt anfragen"))));
 }
 
+/* ===================== Herkunft / „Seit 1993" — Bridge zur Mutter-Agentur ===================== */
+function HerkunftSection() {
+  const nodes = [
+    { y: "1993", t: "Gr\u00fcndung", s: "B2B-Marketing in Rosenheim \u2014 Strategie, Print & Klassik." },
+    { y: "Digital & Print", t: "Web & Sichtbarkeit", s: "Von Print zu Websites, SEO und Content \u2014 der Sprung ins Digitale." },
+    { y: "Social Marketing", t: "LinkedIn & Bewegtbild", s: "Reichweite \u00fcber Social Media, Video und Fotografie." },
+    { y: "360\u00b0-Full-Service", t: "Umfassende Betreuung ", s: "Zwei Standorte, Rosenheim & K\u00f6ln \u2014 alle Kan\u00e4le aus einer Hand." },
+    { y: "Beyond Marketing", t: "Heute ", s: "Marketing wird KI-f\u00e4hig \u2014 die n\u00e4chste Stufe.", hot: true }
+  ];
+  const services = [
+    ["Strategie, Content & PR", "https://www.team-mt.de/leistungen/strategie-content-pr-markenkommunikation/"],
+    ["LinkedIn Marketing", "https://www.team-mt.de/leistungen/linkedin-marketing/"],
+    ["Video Creation & Fotografie", "https://www.team-mt.de/leistungen/video-creation/"],
+    ["Webentwicklung & Design", "https://www.team-mt.de/leistungen/webdevelopment-webdesign/"],
+    ["GEO & Generative Search", "https://www.team-mt.de/leistungen/geo-generative-search/"],
+    ["Performance Marketing", "https://www.team-mt.de/leistungen/performance-marketing-agentur/"]
+  ];
+  const chip = e => { e.currentTarget.style.color = "var(--accent)"; e.currentTarget.style.boxShadow = "inset 0 0 0 1px var(--accent)"; };
+  const unchip = e => { e.currentTarget.style.color = "var(--ink)"; e.currentTarget.style.boxShadow = "inset 0 0 0 1px var(--line)"; };
+  const trackRef = useRef(null);
+  const [shown, setShown] = useState(false);
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) { setShown(true); return; }
+    let done = false;
+    function cleanup() { try { io && io.disconnect(); } catch (e) {} window.removeEventListener("scroll", reveal, true); window.removeEventListener("resize", reveal); clearInterval(poll); }
+    function reveal() {
+      if (done) return;
+      const node = trackRef.current; if (!node) return;
+      const r = node.getBoundingClientRect();
+      if (r.width === 0 && r.height === 0) return;
+      if (r.top < (window.innerHeight || 800) * 0.85) { done = true; setShown(true); cleanup(); }
+    }
+    let io = null;
+    try {
+      io = new IntersectionObserver(function (ents) { ents.forEach(function (e) { if (e.isIntersecting) { done = true; setShown(true); cleanup(); } }); }, { threshold: 0.2 });
+      if (trackRef.current) io.observe(trackRef.current);
+    } catch (e) {}
+    window.addEventListener("scroll", reveal, true);
+    window.addEventListener("resize", reveal);
+    const poll = setInterval(reveal, 250);
+    reveal();
+    return cleanup;
+  }, []);
+  return h("section", { className: "sec-pad grid-bg", style: { borderTop: "1px solid var(--line)" } },
+    h(Reveal, { className: "wrap", style: { maxWidth: 980, marginLeft: "auto", marginRight: "auto" } },
+      h(Eyebrow, { num: "// Seit 1993" }, "Die Agentur hinter Beyond Marketing"),
+      h("h2", { style: { fontFamily: "Poppins", fontWeight: 800, fontSize: "clamp(28px,4vw,52px)", lineHeight: 1.04, letterSpacing: "-.02em", textWrap: "balance", marginTop: 14, marginBottom: 18, maxWidth: 760 } }, "33 Jahre Marketing. ", h("span", { style: { color: "var(--accent)" } }, "Ein neues Kapitel.")),
+      h("p", { className: "lead", style: { maxWidth: 660, marginBottom: "clamp(40px,5vw,62px)" } }, "Beyond Marketing ist kein Start-up-Experiment, sondern die n\u00e4chste Stufe von team::mt \u2014 einer B2B-Marketing-Agentur, die seit 1993 mit Unternehmen w\u00e4chst. Vom Printkatalog \u00fcber digitale Kampagnen bis zur KI."),
+      h("div", { ref: trackRef, style: { position: "relative", marginBottom: "clamp(40px,5vw,62px)" } },
+        h("div", { "aria-hidden": "true", className: "kiw-tl-line", style: { position: "absolute", left: 5, top: 6, bottom: 6, width: 2, background: "linear-gradient(180deg, var(--line-strong), var(--accent))", transformOrigin: "top center", transform: shown ? "scaleY(1)" : "scaleY(0)", transition: "transform 1.2s cubic-bezier(.2,.8,.2,1)", animation: shown ? "kiwLinePulse 2.8s ease-in-out infinite" : "none" } }),
+        nodes.map((n, i) => h("div", { key: i, style: { position: "relative", display: "flex", gap: 18, paddingBottom: i === nodes.length - 1 ? 0 : "clamp(22px,3vw,34px)", opacity: shown ? 1 : 0, transform: shown ? "translateY(0)" : "translateY(16px)", transition: "opacity .55s ease " + (0.3 + i * 0.16) + "s, transform .6s cubic-bezier(.2,.8,.2,1) " + (0.3 + i * 0.16) + "s" } },
+          h("div", { style: { flex: "none", width: 12, display: "flex", justifyContent: "center", paddingTop: 4 } },
+            h("div", { "aria-hidden": "true", className: n.hot ? "kiw-tl-dot" : null, style: { width: 12, height: 12, borderRadius: "50%", background: n.hot ? "var(--accent)" : "var(--bg-0)", boxShadow: n.hot ? "0 0 0 4px color-mix(in srgb,var(--accent) 26%, transparent)" : "inset 0 0 0 2px var(--accent)", transform: shown ? "scale(1)" : "scale(0)", transition: "transform .5s cubic-bezier(.34,1.56,.64,1) " + (0.35 + i * 0.16) + "s", animation: (shown && n.hot) ? "kiwDotPulse 2.8s ease-in-out infinite" : "none" } })),
+          h("div", { style: { flex: "1 1 auto", paddingLeft: 10 } },
+            h("div", { style: { fontFamily: "Poppins", fontWeight: 800, fontSize: "clamp(18px,2.2vw,22px)", lineHeight: 1.15, letterSpacing: "-.01em", color: n.hot ? "var(--accent)" : "var(--ink)" } }, n.y),
+            h("div", { style: { fontFamily: "Poppins", fontWeight: 600, fontSize: 13.5, marginTop: 6, color: "var(--ink-dim)" } }, n.t),
+            h("div", { style: { fontSize: 14, lineHeight: 1.5, color: "var(--muted)", marginTop: 6, maxWidth: 580 } }, n.s))))),
+      h("div", { style: { fontFamily: "Poppins", fontSize: 12.5, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--muted)", marginBottom: 16 } }, "Mehr als KI \u2014 das ganze Haus"),
+      h("div", { style: { display: "flex", flexWrap: "wrap", gap: 10, marginBottom: "clamp(34px,4vw,48px)" } },
+        services.map(([label, href]) => h("a", { key: href, href: href, target: "_blank", rel: "noopener noreferrer", style: { display: "inline-flex", alignItems: "center", padding: "9px 15px", borderRadius: 999, fontFamily: "Poppins", fontWeight: 500, fontSize: 13.5, color: "var(--ink)", background: "var(--glass)", boxShadow: "inset 0 0 0 1px var(--line)", transition: "color .2s, box-shadow .2s" }, onMouseEnter: chip, onMouseLeave: unchip }, label))),
+      h("a", { className: "btn btn-cta", href: "https://www.team-mt.de", target: "_blank", rel: "noopener noreferrer", style: { display: "inline-flex", alignItems: "center", gap: 10, textDecoration: "none" } }, "Die ganze Agentur entdecken \u2014 team-mt.de ", h(Icon, { name: "arrow", size: 16 }))));
+}
+
 const tmtFHead = { fontFamily: "Poppins", fontSize: 11.5, letterSpacing: ".24em", textTransform: "uppercase", color: "var(--accent)", marginBottom: 18 };
 function SiteFooter({ onBook }) {
   return h("footer", { style: { position: "relative", borderTop: "1px solid var(--line)", paddingTop: 64, paddingBottom: 48 } },
     h("div", { className: "wrap" },
       h("div", { className: "footgrid", style: { display: "grid", gridTemplateColumns: "1.4fr 1fr 1fr", gap: 40, alignItems: "start", marginBottom: 54 } },
         h("div", null,
-          h("div", { style: { display: "flex", alignItems: "center", marginBottom: 16 } },
-            h("img", { src: "assets/logo-wordmark.jpg", alt: "team::mt", style: { height: 26, width: "auto", display: "block", mixBlendMode: "multiply" } })),
-          h("p", { style: { color: "var(--muted)", fontSize: 14, maxWidth: 320, margin: 0 } }, "KI-Marketing-Agentur aus München. 33 Jahre B2B-Erfahrung, neu gedacht mit KI und 360°-Blick über alle Kanäle.")),
+          h("div", { style: { display: "flex", alignItems: "center", gap: 14, marginBottom: 16 } },
+            h("img", { src: "assets/logo-wordmark.jpg", alt: "team::mt", style: { height: 26, width: "auto", display: "block", mixBlendMode: "multiply" } }),
+            h("span", { style: { fontFamily: "Poppins", fontWeight: 600, fontSize: 11, letterSpacing: ".16em", textTransform: "uppercase", color: "var(--accent)", padding: "5px 10px", borderRadius: 999, boxShadow: "inset 0 0 0 1px color-mix(in srgb,var(--accent) 42%, transparent)" } }, "Seit 1993")),
+          h("p", { style: { color: "var(--muted)", fontSize: 14, maxWidth: 320, margin: 0 } }, "KI-Marketing-Agentur aus Rosenheim & Köln. 33 Jahre B2B-Erfahrung, neu gedacht mit KI und 360°-Blick über alle Kanäle."),
+          h("a", { href: "https://www.team-mt.de", target: "_blank", rel: "noopener noreferrer", style: { display: "inline-flex", alignItems: "center", gap: 7, marginTop: 16, fontFamily: "Poppins", fontWeight: 600, fontSize: 14, color: "var(--ink)", transition: "color .2s" }, onMouseEnter: e => e.currentTarget.style.color = "var(--accent)", onMouseLeave: e => e.currentTarget.style.color = "var(--ink)" }, "Die ganze Agentur: team-mt.de ", h(Icon, { name: "arrow", size: 14 }))),
         h("div", null,
           h("div", { style: tmtFHead }, "Navigation"),
           [["Startseite", "#/"], ["Ansatz", "#/ansatz"], ["Leistungen", "#/leistungen"], ["Team", "#/team"]].map(([l, href]) => h("a", { key: href, href: href, style: { display: "block", color: "var(--ink-dim)", fontSize: 14.5, marginBottom: 12 } }, l))),
@@ -2821,7 +2948,7 @@ function SiteFooter({ onBook }) {
       h(NeonDivider, null),
       h("div", { style: { display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 12, paddingTop: 22, color: "var(--muted)", fontSize: 12.5, fontFamily: "Poppins", letterSpacing: ".05em" } },
         h("span", null, "© 2026 team::mt"),
-        h("span", null, "KI-Marketing-Agentur · München"))));
+        h("span", null, "KI-Marketing-Agentur · Rosenheim & Köln"))));
 }
 
 /* ----------------------------- Team-Unterseite ----------------------------- */
@@ -2892,7 +3019,7 @@ function TeamSeite({ onBook }) {
         h("div", { style: { display: "flex", gap: 14, flexWrap: "wrap", marginTop: 30 } },
           h("button", { className: "btn btn-cta", onClick: onBook }, "Kontakt aufnehmen ", h(Icon, { name: "arrow", size: 16 }))),
         h("div", { style: { display: "flex", flexWrap: "wrap", gap: "clamp(22px,3vw,46px)", marginTop: "clamp(32px,4.5vw,50px)" } },
-          [["33+", "Jahre Erfahrung"], ["10", "Expert:innen"], ["2", "Standorte · München & Köln"]].map(([k, v]) => h("div", { key: v },
+          [["33+", "Jahre Erfahrung"], ["10", "Expert:innen"], ["2", "Standorte · Rosenheim & Köln"]].map(([k, v]) => h("div", { key: v },
             h("div", { style: { fontFamily: "Poppins", fontWeight: 800, fontSize: "clamp(30px,3.6vw,50px)", lineHeight: 1, color: "var(--accent)" } }, k),
             h("div", { style: { color: "var(--ink-dim)", fontSize: 13.5, marginTop: 7, fontFamily: "Poppins" } }, v))))),
       h("div", { style: { position: "relative", aspectRatio: "4 / 3", borderRadius: 12, overflow: "hidden", background: "linear-gradient(160deg, var(--bg-1), var(--bg-2))", boxShadow: "inset 0 0 0 1px var(--line), 0 40px 90px rgba(20,40,70,.16)" } },
@@ -2971,6 +3098,11 @@ function App() {
       smoothWheel: true
     });
     window.__lenis = lenis;
+    // Schnelleres Zurückscrollen: beim Hochscrollen bekommt jeder Wheel-Schritt mehr Weg,
+    // damit die langen gepinnten Abschnitte rückwärts zügiger durchlaufen werden.
+    const DOWN_WHEEL = 0.96, UP_WHEEL = 1.6;
+    const onWheelDir = e => { const vs = lenis.virtualScroll; if (vs && vs.options) vs.options.wheelMultiplier = e.deltaY < 0 ? UP_WHEEL : DOWN_WHEEL; };
+    window.addEventListener("wheel", onWheelDir, { capture: true, passive: true });
     if (ScrollTrigger) lenis.on("scroll", ScrollTrigger.update);
     const tick = time => lenis.raf(time * 1000); // gsap ticker gives seconds, lenis wants ms
     gsap.ticker.add(tick);
@@ -2981,6 +3113,7 @@ function App() {
     return () => {
       clearTimeout(id);
       window.removeEventListener("load", onResize);
+      window.removeEventListener("wheel", onWheelDir, { capture: true });
       gsap.ticker.remove(tick);
       lenis.destroy();
       if (window.__lenis === lenis) window.__lenis = null;
@@ -3098,14 +3231,13 @@ function App() {
     const subs = {
       ansatz: [h(AnsatzHero, { key: "ah" }), h(ScanCut, { key: "s0" }), h(GlassRing360, { key: "g", onBook: goBook, leistungenHref: "#/leistungen" }), h(ScanCut, { key: "s1" }), h(SoArbeitenWir, { key: "p" }), h(ScanCut, { key: "s2" }), h(BookingSection, { key: "b" })],
       leistungen: [h(LeistungsIndex, { key: "li" }), h(LeistungenSection, { key: "ls", onBook: goBook }), h(ScanCut, { key: "s1" }), h(DreiPaketeSection, { key: "pk", onBook: goBook }), h(ScanCut, { key: "s2" }), h(BookingSection, { key: "b" })],
-      team: [h(TeamSeite, { key: "tm", onBook: goBook }), h(ScanCut, { key: "s2" }), h(BookingSection, { key: "b" })]
+      team: [h(TeamSeite, { key: "tm", onBook: goBook }), h(ScanCut, { key: "s2" }), h(HerkunftSection, { key: "hk" }), h(ScanCut, { key: "s3" }), h(BookingSection, { key: "b" })]
     };
     const sub = subs[route];
     return h(React.Fragment, null,
       h(TopBar, { onBook: goBook, route: route }),
       h("main", null, sub),
       h(SiteFooter, { onBook: goBook }),
-      h(StickyCTA, { onBook: goBook }),
       h(GlobalScanCursor, null),
       h(TweaksPanel, null,
         h(TweakSection, { label: "Farben" }),
@@ -3118,11 +3250,9 @@ function App() {
   }), /*#__PURE__*/React.createElement(Hero, {
     tweaks: t,
     onBook: goBook
-  }), h(GlassRing360, { onBook: goBook }), h(ScanCut, null), h(LeistungenSection, { onBook: goBook }), h(ScanCut, null), h(DreiPaketeSection, {
+  }), h(GlassRing360, { onBook: goBook }), h(ScanCut, null), h(LeistungsIndex, null), h(LeistungenSection, { onBook: goBook }), h(ScanCut, null), h(DreiPaketeSection, {
     onBook: goBook
-  }), h(ScanCut, null), h(BookingSection, null), h(ScanCut, null), h(AbschlussCTA, { onBook: goBook }), h(SiteFooter, {
-    onBook: goBook
-  }), /*#__PURE__*/React.createElement(StickyCTA, {
+  }), h(ScanCut, null), h(BookingSection, null), h(ScanCut, null), h(HerkunftSection, null), h(ScanCut, null), h(AbschlussCTA, { onBook: goBook }), h(SiteFooter, {
     onBook: goBook
   }), /*#__PURE__*/React.createElement(GlobalScanCursor, null), /*#__PURE__*/React.createElement(TweaksPanel, null, /*#__PURE__*/React.createElement(TweakSection, {
     label: "Farben"
