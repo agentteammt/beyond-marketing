@@ -108,7 +108,7 @@ function TopBar({
     });
     return () => window.removeEventListener("scroll", onS);
   }, []);
-  return /*#__PURE__*/React.createElement("header", {
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("header", {
     style: {
       position: "fixed",
       top: 0,
@@ -148,12 +148,17 @@ function TopBar({
     "aria-label": menuOpen ? "Menü schließen" : "Menü öffnen",
     "aria-expanded": menuOpen ? "true" : "false",
     onClick: () => setMenuOpen(o => !o),
-    style: { display: "none", alignItems: "center", justifyContent: "center", width: 42, height: 42, marginLeft: 4, background: "transparent", border: "1px solid var(--line-strong)", borderRadius: 6, cursor: "pointer", color: "var(--ink)", flex: "none" }
+    style: { display: "none", alignItems: "center", justifyContent: "center", width: 42, height: 42, marginLeft: 4, background: "transparent", border: "1px solid var(--line-strong)", borderRadius: 6, cursor: "pointer", color: "var(--ink)", flex: "none", position: "relative", zIndex: 120 }
   }, h("span", { "aria-hidden": "true", style: { position: "relative", display: "block", width: 18, height: 12 } },
-    ["top", "mid", "bot"].map((k, i) => h("span", { key: k, style: { position: "absolute", left: 0, right: 0, height: 2, borderRadius: 2, background: "currentColor", transition: "transform .28s cubic-bezier(.2,.8,.2,1), opacity .2s", top: i === 0 ? 0 : i === 1 ? 5 : 10, transform: menuOpen ? (i === 0 ? "translateY(5px) rotate(45deg)" : i === 1 ? "scaleX(0)" : "translateY(-5px) rotate(-45deg)") : "none", opacity: menuOpen && i === 1 ? 0 : 1 } }))))),
+    ["top", "mid", "bot"].map((k, i) => {
+      const closed = i === 0 ? { width: "72%", right: 0, left: "auto" } : i === 1 ? { width: "100%", left: 0, right: "auto" } : { width: "48%", left: 0, right: "auto" };
+      const openX = { width: "100%", left: 0, right: "auto" };
+      return h("span", { key: k, style: { position: "absolute", height: 2, borderRadius: 2, background: "var(--accent)", transformOrigin: "center", transition: "transform .3s cubic-bezier(.2,.8,.2,1), width .3s cubic-bezier(.2,.8,.2,1), opacity .2s", top: i === 0 ? 0 : i === 1 ? 5 : 10, ...(menuOpen ? openX : closed), transform: menuOpen ? (i === 0 ? "translateY(5px) rotate(45deg)" : i === 1 ? "scaleX(0)" : "translateY(-5px) rotate(-45deg)") : "none", opacity: menuOpen && i === 1 ? 0 : 1 } });
+    }))))),
     h("div", {
       className: "navmenu",
-      style: { position: "fixed", inset: 0, zIndex: 95, display: "none", flexDirection: "column", justifyContent: "center", background: "color-mix(in srgb, var(--bg-0) 96%, transparent)", backdropFilter: "blur(18px)", WebkitBackdropFilter: "blur(18px)", padding: "96px 32px 44px", opacity: menuOpen ? 1 : 0, pointerEvents: menuOpen ? "auto" : "none", transition: "opacity .35s ease", overflowY: "auto" },
+      onClick: e => { if (e.target === e.currentTarget) setMenuOpen(false); },
+      style: { position: "fixed", inset: 0, zIndex: 95, display: "none", flexDirection: "column", justifyContent: "flex-start", background: "color-mix(in srgb, var(--bg-0) 97%, transparent)", backdropFilter: "blur(18px)", WebkitBackdropFilter: "blur(18px)", padding: "calc(76px + env(safe-area-inset-top)) 32px calc(48px + env(safe-area-inset-bottom))", opacity: menuOpen ? 1 : 0, pointerEvents: menuOpen ? "auto" : "none", transition: "opacity .35s ease", overflowY: "auto", WebkitOverflowScrolling: "touch" },
       "aria-hidden": menuOpen ? "false" : "true"
     },
       h("nav", { style: { display: "flex", flexDirection: "column" } },
