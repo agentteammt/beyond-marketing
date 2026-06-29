@@ -2379,7 +2379,7 @@ function SocialVisual() {
 }
 
 const CHAPTERS = [
-  { img: "assets/leistungen/audit.png", num: "// 01", eyebrow: "KI-Werkstatt-Audit", visual: AuditVisual,
+  { img: "assets/leistungen/audit.png", num: "// 01", eyebrow: "KI-Audit", visual: AuditVisual,
     title: "Wir prüfen Unternehmen und Marketing auf Herz und Nieren.",
     sub: "Ein ehrlicher Diagnose-Scan über Ihr gesamtes Marketing — datenbasiert und ohne Schönfärberei.",
     result: "Ergebnis: ein klarer Maßnahmenplan, wo KI sofort wirkt.", cta: "Audit anfragen" },
@@ -2524,7 +2524,17 @@ function LeistungChapter({ d, flip, onBook }) {
 
 /* Statischer Leistungs-Index („Was wir tun") für die Leistungen-Unterseite.
    Nutzt dieselben CHAPTERS-Daten; Zeilen springen zum jeweiligen Kapitel. */
-function LeistungsIndex() {
+function LeistungsIndex({ hideWhenCinematic } = {}) {
+  const cinematicNow = () => typeof window !== "undefined" && window.matchMedia && window.matchMedia("(min-width:901px)").matches && !window.matchMedia("(pointer:coarse)").matches && !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const [hidden, setHidden] = useState(() => !!hideWhenCinematic && cinematicNow());
+  useEffect(() => {
+    if (!hideWhenCinematic) return;
+    const compute = () => setHidden(cinematicNow());
+    compute();
+    window.addEventListener("resize", compute);
+    return () => window.removeEventListener("resize", compute);
+  }, [hideWhenCinematic]);
+  if (hidden) return null;
   return h("section", { className: "sec-pad grid-bg", style: { borderTop: "1px solid var(--line)" } },
     h("div", { className: "wrap", style: { maxWidth: 980, margin: "0 auto" } },
       h("div", { style: { display: "flex", justifyContent: "flex-start" } }, h(Eyebrow, { num: "// Leistungen" }, "Was wir tun")),
@@ -3272,7 +3282,7 @@ function App() {
   }), /*#__PURE__*/React.createElement(Hero, {
     tweaks: t,
     onBook: goBook
-  }), h(GlassRing360, { onBook: goBook }), h(ScanCut, null), h(LeistungsIndex, null), h(LeistungenSection, { onBook: goBook }), h(ScanCut, null), h(DreiPaketeSection, {
+  }), h(GlassRing360, { onBook: goBook }), h(ScanCut, null), h(LeistungsIndex, { hideWhenCinematic: true }), h(LeistungenSection, { onBook: goBook }), h(ScanCut, null), h(DreiPaketeSection, {
     onBook: goBook
   }), h(ScanCut, null), h(BookingSection, null), h(ScanCut, null), h(HerkunftSection, null), h(ScanCut, null), h(AbschlussCTA, { onBook: goBook }), h(SiteFooter, {
     onBook: goBook
