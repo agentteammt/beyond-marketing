@@ -490,8 +490,20 @@ function Hero({
       marginTop: 38
     }, fade(textDone, 120))
   }, /*#__PURE__*/React.createElement("button", {
+    id: "hero-cta-gespraech",
     className: "btn btn-cta",
-    onClick: onBook
+    onClick: (e) => {
+      try {
+        if (window.gtag) gtag("event", "Beyond_Hero_CTA", {
+          click_id: "hero-cta-gespraech",
+          click_text: "Gespräch anfragen",
+          click_location: "hero",
+          click_classes: "btn btn-cta",
+          link_url: location.pathname
+        });
+      } catch (err) {}
+      onBook(e);
+    }
   }, "Gespräch anfragen ", /*#__PURE__*/React.createElement(Icon, {
     name: "arrow",
     size: 16
