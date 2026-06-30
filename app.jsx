@@ -185,7 +185,7 @@ function Hero({ tweaks, onBook }) {
           <h1 aria-label={CONTENT.claimLead + (CONTENT.claimAccent ? " " + CONTENT.claimAccent : "")} style={{ fontSize: "clamp(40px,7vw,88px)", lineHeight: 0.98, marginBottom: 8 }}><span style={{ color: "#db0830" }}>Beyond </span><span style={{ color: "#0e1b2e" }}>Marketing.</span>{CONTENT.claimAccent ? <React.Fragment><br /><span style={{ color: "var(--accent)", textShadow: "0 0 calc(50px*var(--glow)) color-mix(in srgb,var(--accent) 55%, transparent)" }}>{CONTENT.claimAccent}</span></React.Fragment> : null}</h1>}
           <p style={{ ...Object.assign({ fontSize: "clamp(16px,2.1vw,21px)", color: "var(--ink-dim)", maxWidth: 540, margin: "20px 0 0", fontWeight: 300 }, fade(textDone, 0)), fontSize: "20px", fontFamily: '"EB Garamond", Garamond, "Times New Roman", serif', fontStyle: "italic", fontWeight: 400, lineHeight: 1.45 }}>{CONTENT.claimSub}</p>
           <div style={Object.assign({ display: "flex", gap: 14, flexWrap: "wrap", marginTop: 38 }, fade(textDone, 120))}>
-            <button className="btn btn-cta" onClick={onBook}>Gespräch anfragen <Icon name="arrow" size={16} /></button>
+            <button id="hero-cta-gespraech" className="btn btn-cta" onClick={(e) => { try { if (window.gtag) gtag("event", "Beyond_Hero_CTA", { click_id: "hero-cta-gespraech", click_text: "Gespräch anfragen", click_location: "hero", click_classes: "btn btn-cta", link_url: location.pathname }); } catch (err) {} onBook(e); }}>Gespräch anfragen <Icon name="arrow" size={16} /></button>
             <button className="btn btn-ghost" onClick={() => scrollToId("ansatz")}>Unser Ansatz</button>
           </div>
           <div style={Object.assign({ display: "flex", gap: 26, flexWrap: "wrap", marginTop: 42, color: "var(--ink-dim)" }, fade(textDone, 240))}>
@@ -1632,7 +1632,7 @@ function SocialVisual() {
 }
 
 const CHAPTERS = [
-  { img: "assets/leistungen/audit.png", num: "// 01", eyebrow: "KI-Werkstatt-Audit", visual: AuditVisual,
+  { img: "assets/leistungen/audit.png", num: "// 01", eyebrow: "KI-Audit", visual: AuditVisual,
     title: "Wir prüfen Unternehmen und Marketing auf Herz und Nieren.",
     sub: "Ein ehrlicher Diagnose-Scan über Ihr gesamtes Marketing — datenbasiert und ohne Schönfärberei.",
     result: "Ergebnis: ein klarer Maßnahmenplan, wo KI sofort wirkt.", cta: "Audit anfragen" },
@@ -2044,8 +2044,8 @@ function VertrauenSection({ onBook }) {
 
 /* Buchung (#kontakt) — wiederkehrende Erstgespräch-Slots: erst Datum, dann Uhrzeit */
 const tmtInp = { background: "rgba(140,190,230,.05)", border: "1px solid var(--line-strong)", borderRadius: 2, padding: "12px 14px", color: "var(--ink)", fontFamily: "Poppins", fontSize: 14, outline: "none", minWidth: 0, maxWidth: "100%" };
-const BOOK_TIMES = ["09:00", "09:30", "10:00", "10:30", "15:00", "15:30"];
-const BOOK_CAP = 1;
+const BOOK_TIMES = ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00"];
+const BOOK_CAP = 2;
 const DOW = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
 const MON = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
 function nextBusinessDays(n) {
@@ -2053,7 +2053,7 @@ function nextBusinessDays(n) {
   let i = 0;
   while (out.length < n && i < 30) {
     i++;const x = new Date(base);x.setDate(base.getDate() + i);
-    const wd = x.getDay();if (wd !== 2 && wd !== 3 && wd !== 4) continue;
+    const wd = x.getDay();if (wd === 0 || wd === 6) continue;
     const iso = x.getFullYear() + "-" + String(x.getMonth() + 1).padStart(2, "0") + "-" + String(x.getDate()).padStart(2, "0");
     out.push({ iso, dow: DOW[wd], dom: x.getDate(), mon: MON[x.getMonth()] });
   }
@@ -2079,13 +2079,13 @@ function ErstgesprachBooking() {
     (async () => {
       try {
         const rows = await window.KIWBooking.loadAvailability(selDate);
-        if (on) setAvail((rows || []).reduce((m, r) => {m[r.label] = r;return m;}, {}));
+        if (on) setAvail((rows || []).reduce((m, r) => {m[r.label] = r.remaining;return m;}, {}));
       } catch (e) {if (on) setError("Verfügbarkeit konnte nicht geladen werden. Bitte Seite neu laden.");}
     })();
     return () => {on = false;};
   }, [selDate, live]);
 
-  const remaining = (t) => live ? avail ? avail[t] != null ? avail[t].remaining : 0 : null : BOOK_CAP - (taken[selDate + "|" + t] || 0);
+  const remaining = (t) => live ? avail ? avail[t] != null ? avail[t] : 0 : null : BOOK_CAP - (taken[selDate + "|" + t] || 0);
   const valid = selDate && selTime && form.name.trim() && /\S+@\S+\.\S+/.test(form.email);
   const selLabel = () => {const d = dates.find((x) => x.iso === selDate);return d ? d.dow + " " + d.dom + ". " + d.mon : "";};
 
@@ -2094,7 +2094,7 @@ function ErstgesprachBooking() {
     setError(null);setSubmitting(true);
     try {
       if (live) {
-        const r = await window.KIWBooking.bookSlot(selDate, avail && avail[selTime] ? avail[selTime].slot_id : null, form.name.trim(), form.email.trim(), form.company.trim(), form.note.trim());
+        const r = await window.KIWBooking.bookSlot(selDate, selTime, form.name.trim(), form.email.trim(), form.company.trim(), form.note.trim());
         if (r === "ok") setDone(true);else
         if (r === "full") {setError("Dieser Termin ist gerade belegt. Bitte wählen Sie einen anderen.");setSelTime(null);} else
         setError("Dieser Termin ist nicht mehr verfügbar.");
