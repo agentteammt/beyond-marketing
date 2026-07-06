@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://beyond-marketing.team-mt.de/sitemap.xml
