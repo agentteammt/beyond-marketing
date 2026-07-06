@@ -1,0 +1,65 @@
+(function () {
+function cfg() { return window.KIW_SUPABASE || {}; }
+function base() { return String(cfg().url || "").replace(/\/+$/, ""); }
+function configured() { var c = cfg(); return !!(c.url && c.anonKey); }
+function headers() {
+var c = cfg();
+return {
+"apikey": c.anonKey,
+"Authorization": "Bearer " + c.anonKey,
+"Content-Type": "application/json",
+};
+}
+async function loadAvailability(date) {
+if (!configured()) return null;
+var res = await fetch(base() + "/rest/v1/rpc/get_availability", {
+method: "POST",
+headers: headers(),
+body: JSON.stringify({ p_date: date || null }),
+});
+var data = null;
+try { data = await res.json(); } catch (e) { data = null; }
+if (!res.ok) {
+var msg = (data && (data.message || data.error || data.hint)) || ("HTTP " + res.status);
+var err = new Error(msg); err.status = res.status; err.data = data;
+throw err;
+}
+if (!Array.isArray(data)) return [];
+return data.map(function (r) {
+var label = r.label != null ? r.label : (r.start_time != null ? String(r.start_time).slice(0, 5) : "");
+var remaining = r.remaining != null
+? r.remaining
+: ((r.capacity != null ? r.capacity : 1) - (r.booked != null ? r.booked : 0));
+var isAvail = r.is_available != null ? r.is_available : (remaining > 0);
+return { slot_id: r.slot_id, label: label, remaining: remaining, is_available: isAvail };
+});
+}
+async function bookSlot(date, slotId, name, email, company, note) {
+if (!configured()) throw new Error("not-configured");
+var res = await fetch(base() + "/functions/v1/book", {
+method: "POST",
+headers: headers(),
+body: JSON.stringify({
+date: date,
+slot_id: slotId,
+name: name,
+email: email,
+company: company || null,
+note: note || null,
+}),
+});
+var data = null;
+try { data = await res.json(); } catch (e) { data = null; }
+var status = data && (data.status || data.result);
+if (status === "booked") return "ok";
+if (status === "already_booked" || status === "full") return "full";
+if (status === "invalid_slot") return "invalid";
+if (!res.ok) {
+var msg = (data && (data.message || data.error)) || ("HTTP " + res.status);
+var err = new Error(msg); err.status = res.status; err.data = data;
+throw err;
+}
+return "invalid";
+}
+window.KIWBooking = { configured: configured, loadAvailability: loadAvailability, bookSlot: bookSlot };
+})();
