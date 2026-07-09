@@ -2782,12 +2782,12 @@ function TeamMarquee() {
 var pos = { "Martina Manich": "50% 16%", "Katja Limbrunner": "50% 12%", "Moritz Freese": "50% 14%", "Marius Brinschwitz": "50% 14%", "Ulrike Zenker": "50% 10%", "Joelle Lenz": "50% 12%", "Anzhelika Balzer": "50% 14%", "Marcel Richtfeld": "50% 10%" };
 var list = TEAM_MEMBERS.filter(function (m) { return pos[m.n]; });
 var item = function (m, key) {
-return h("div", { key: key, style: { flex: "none", display: "flex", flexDirection: "column", alignItems: "center", gap: 9, width: 112 } },
+return h("div", { key: key, style: { flex: "none", display: "flex", flexDirection: "column", alignItems: "center", gap: 9, width: 128 } },
 h("div", { style: { width: 88, height: 88, borderRadius: "50%", overflow: "hidden", background: "var(--bg-2)", boxShadow: "0 10px 26px rgba(14,27,46,.16), 0 0 0 3px var(--bg-0), inset 0 0 0 1px color-mix(in srgb,var(--accent) 22%, transparent)" } },
 h("img", { src: m.img, alt: m.n, loading: "lazy", style: { width: "100%", height: "100%", objectFit: "cover", objectPosition: pos[m.n] } })),
 h("div", { style: { textAlign: "center" } },
 h("div", { style: { fontFamily: "Poppins", fontWeight: 600, fontSize: 12.5, color: "var(--ink)", whiteSpace: "nowrap" } }, m.n.split(" ")[0]),
-h("div", { style: { fontFamily: "Poppins", fontSize: 10.5, color: "var(--muted)", whiteSpace: "nowrap" } }, m.r)));
+h("div", { style: { fontFamily: "Poppins", fontSize: 10.5, lineHeight: 1.25, color: "var(--muted)" } }, m.r)));
 };
 var track = list.map(function (m, i) { return item(m, "a" + i); }).concat(list.map(function (m, i) { return item(m, "b" + i); }));
 return h("div", { className: "team-marquee-mask", "aria-label": "Unser Team", style: { position: "relative", marginTop: "clamp(34px,4vw,52px)", paddingTop: "clamp(30px,4vw,40px)", borderTop: "1px solid var(--line)" } },
