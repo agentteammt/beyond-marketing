@@ -2102,12 +2102,20 @@ h("span", { style: { color: "var(--accent)", fontWeight: 600, fontFamily: "Poppi
 "Marketing, das mit KI über alle Kanäle hinweg denkt — 360°, immer aktiv, in Echtzeit messbar."),
 h("p", { style: { fontFamily: '"EB Garamond", Georgia, serif', fontStyle: "italic", fontSize: 16, color: "var(--ink-dim)", maxWidth: 520, marginTop: 14, marginBottom: 0 } }, "„Sie machen kein Marketing von gestern mehr — Sie machen Beyond Marketing.“")),
 h("div", { className: "bm-divider", "aria-hidden": "true", style: { alignSelf: "stretch", width: 1, minHeight: 220, background: "linear-gradient(to bottom, transparent, var(--accent), transparent)", boxShadow: "0 0 12px color-mix(in srgb,var(--accent) 55%, transparent)" } }),
-h("div", null,
+h("div", { className: "def-two" },
+h("div", { className: "team-photo float" },
+h("img", { src: "assets/team/martina.jpg", alt: "Martina Manich \u2014 CEO & Gr\u00fcnderin", loading: "lazy", style: { objectPosition: "50% 14%" } }),
+h("span", { className: "tp-scan" }),
+h("span", { className: "tp-cn", style: { top: 12, left: 12, borderTop: "2px solid var(--accent)", borderLeft: "2px solid var(--accent)" } }),
+h("span", { className: "tp-cn", style: { top: 12, right: 12, borderTop: "2px solid var(--accent)", borderRight: "2px solid var(--accent)", animationDelay: ".3s" } }),
+h("span", { className: "tp-cn", style: { bottom: 12, left: 12, borderBottom: "2px solid var(--accent)", borderLeft: "2px solid var(--accent)", animationDelay: ".6s" } }),
+h("span", { className: "tp-cn", style: { bottom: 12, right: 12, borderBottom: "2px solid var(--accent)", borderRight: "2px solid var(--accent)", animationDelay: ".9s" } })),
+h("div", { className: "def-content" },
 h("h3", { style: { fontSize: "clamp(30px,4vw,56px)", lineHeight: 1.04, textWrap: "balance", margin: 0 } }, "Sind Sie ", h("span", { style: { color: "var(--accent)" } }, "bereit?")),
 h("p", { style: { color: "var(--ink-dim)", fontSize: 16, lineHeight: 1.5, maxWidth: 390, marginTop: 18 } }, "Ein 10-Minuten-Gespräch genügt, um zu sehen, wo KI in Ihrem Marketing den größten Hebel setzt."),
 h("div", { style: { display: "flex", gap: 14, flexWrap: "wrap", marginTop: 30 } },
 h("button", { className: "btn btn-cta beyond-track-loesung-termin", "data-beyond-event": "Beyond_Loesung_Termin", onClick: onBook }, "Termin vereinbaren ", h(Icon, { name: "arrow", size: 16 }))),
-h("button", { onClick: goIndex, style: { display: "inline-flex", alignItems: "center", gap: 8, marginTop: 18, padding: 0, background: "none", border: "none", cursor: "pointer", fontFamily: "Poppins", fontWeight: 600, fontSize: 15, color: "var(--accent)" } }, "Dann fangen wir hier an", h(Icon, { name: "arrow", size: 16 }))))))),
+h("button", { onClick: goIndex, style: { display: "inline-flex", alignItems: "center", gap: 8, marginTop: 18, padding: 0, background: "none", border: "none", cursor: "pointer", fontFamily: "Poppins", fontWeight: 600, fontSize: 15, color: "var(--accent)" } }, "Dann fangen wir hier an", h(Icon, { name: "arrow", size: 16 })))))))),
 h("div", { ref: idxRef, style: { position: "absolute", inset: 0, zIndex: 7, display: "flex", alignItems: "center", justifyContent: "center", padding: "10vh 5vw", opacity: 0, transform: "translateX(60vw)", pointerEvents: "none" } },
 h("div", { className: "wrap", style: { maxWidth: 980, margin: "0 auto", width: "100%" } },
 h("div", { style: { display: "flex", justifyContent: "flex-start" } }, h(Eyebrow, { num: "// Leistungen" }, "Was wir tun")),
@@ -2770,6 +2778,21 @@ error && h("div", { role: "alert", style: { display: "flex", gap: 9, alignItems:
 h("button", { className: "btn btn-cta beyond-track-booking-submit", "data-beyond-event": "Beyond_Booking_Anfrage", style: { width: "100%", opacity: valid && !submitting ? 1 : .45, pointerEvents: valid && !submitting ? "auto" : "none" }, onClick: submit }, submitting ? "Wird angefragt …" : h(React.Fragment, null, "Termin anfragen ", h(Icon, { name: "arrow", size: 16 }))),
 h("p", { style: { textAlign: "center", color: "var(--muted)", fontSize: 12, marginTop: 14, marginBottom: 0 } }, live ? "Echtzeit-Verfügbarkeit · Bestätigung per E-Mail" : "Wöchentlich wiederkehrende Termine · Bestätigung per E-Mail")));
 }
+function TeamMarquee() {
+var pos = { "Martina Manich": "50% 16%", "Katja Limbrunner": "50% 12%", "Moritz Freese": "50% 14%", "Marius Brinschwitz": "50% 14%", "Ulrike Zenker": "50% 10%", "Joelle Lenz": "50% 12%", "Anzhelika Balzer": "50% 14%", "Marcel Richtfeld": "50% 10%" };
+var list = TEAM_MEMBERS.filter(function (m) { return pos[m.n]; });
+var item = function (m, key) {
+return h("div", { key: key, style: { flex: "none", display: "flex", flexDirection: "column", alignItems: "center", gap: 9, width: 112 } },
+h("div", { style: { width: 88, height: 88, borderRadius: "50%", overflow: "hidden", background: "var(--bg-2)", boxShadow: "0 10px 26px rgba(14,27,46,.16), 0 0 0 3px var(--bg-0), inset 0 0 0 1px color-mix(in srgb,var(--accent) 22%, transparent)" } },
+h("img", { src: m.img, alt: m.n, loading: "lazy", style: { width: "100%", height: "100%", objectFit: "cover", objectPosition: pos[m.n] } })),
+h("div", { style: { textAlign: "center" } },
+h("div", { style: { fontFamily: "Poppins", fontWeight: 600, fontSize: 12.5, color: "var(--ink)", whiteSpace: "nowrap" } }, m.n.split(" ")[0]),
+h("div", { style: { fontFamily: "Poppins", fontSize: 10.5, color: "var(--muted)", whiteSpace: "nowrap" } }, m.r)));
+};
+var track = list.map(function (m, i) { return item(m, "a" + i); }).concat(list.map(function (m, i) { return item(m, "b" + i); }));
+return h("div", { className: "team-marquee-mask", "aria-label": "Unser Team", style: { position: "relative", marginTop: "clamp(34px,4vw,52px)", paddingTop: "clamp(30px,4vw,40px)", borderTop: "1px solid var(--line)" } },
+h("div", { className: "team-marquee-track" }, track));
+}
 function BookingSection() {
 return h("section", { id: "kontakt", className: "sec-pad" },
 h("div", { className: "wrap bookgrid", style: { display: "grid", gridTemplateColumns: "1fr 1.05fr", gap: "clamp(32px,5vw,72px)", alignItems: "center" } },
@@ -2780,7 +2803,7 @@ h("p", { className: "lead", style: { fontSize: 17, marginBottom: 30, maxWidth: 4
 h("ul", { style: { listStyle: "none", padding: 0, margin: 0, display: "grid", gap: 16 } },
 [["target", "360°-Blick über alle Kanäle"], ["bolt", "KI-gestützt, schneller umgesetzt"], ["check", "Messbar statt Bauchgefühl"]].map(([ic, tx]) => h("li", { key: tx, style: { display: "flex", gap: 14, alignItems: "center", color: "var(--ink)", fontSize: 15.5 } },
 h("span", { style: { width: 38, height: 38, flex: "none", borderRadius: 2, display: "grid", placeItems: "center", color: "var(--accent)", boxShadow: "inset 0 0 0 1px var(--line-strong)" } }, h(Icon, { name: ic, size: 18 })), tx)))),
-h(Reveal, { delay: 120 }, h(ErstgesprachBooking, null))));
+h(Reveal, { delay: 120 }, h(ErstgesprachBooking, null))), h("div", { className: "wrap", style: { marginTop: "clamp(6px,1.5vw,16px)" } }, h(TeamMarquee, null)));
 }
 function GumballScrollSection() {
 /* Scrub-Videos werden als Blob geladen, sobald die Sektion in die Nähe kommt —
@@ -2821,11 +2844,11 @@ h(Reveal, { className: "wrap", style: { position: "relative", zIndex: 1, textAli
 h("h2", { style: { fontSize: "clamp(34px,5.4vw,68px)", lineHeight: 1.02, textWrap: "balance", marginBottom: 30 } }, "Bereit für Marketing, ", h("span", { style: { color: "var(--accent)" } }, "das mehr kann?")),
 h("div", { style: { display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center" } },
 h("button", { className: "btn btn-cta beyond-track-abschluss-cta", "data-beyond-event": "Beyond_Abschluss_Termin", onClick: onBook }, "Termin vereinbaren ", h(Icon, { name: "arrow", size: 16 })),
-h("button", { className: "btn btn-ghost beyond-track-abschluss-werkstatt", "data-beyond-event": "Beyond_Abschluss_Werkstatt", onClick: onBook }, "KI-Werkstatt anfragen"))));
+h("button", { className: "btn btn-ghost beyond-track-abschluss-werkstatt", "data-beyond-event": "Beyond_Abschluss_Werkstatt", onClick: onBook }, "KI-Audit anfordern"))));
 }
 function HerkunftSection() {
 const nodes = [
-{ y: "1993", t: "Gr\u00fcndung", s: "B2B-Marketing in Rosenheim \u2014 Strategie, Print & Klassik." },
+{ y: "1993", t: "Gr\u00fcndung", s: "B2B-Marketing in K\u00f6ln \u2014 Strategie, Print & Klassik." },
 { y: "Digital & Print", t: "Web & Sichtbarkeit", s: "Von Print zu Websites, SEO und Content \u2014 der Sprung ins Digitale." },
 { y: "Social Marketing", t: "LinkedIn & Bewegtbild", s: "Reichweite \u00fcber Social Media, Video und Fotografie." },
 { y: "360\u00b0-Full-Service", t: "Umfassende Betreuung ", s: "Zwei Standorte, Rosenheim & K\u00f6ln \u2014 alle Kan\u00e4le aus einer Hand." },
@@ -2875,10 +2898,19 @@ mq.addEventListener ? mq.addEventListener("change", on) : mq.addListener(on);
 return () => { mq.removeEventListener ? mq.removeEventListener("change", on) : mq.removeListener(on); };
 }, []);
 return h("section", { className: "sec-pad grid-bg", style: { borderTop: "1px solid var(--line)" } },
-h(Reveal, { className: "wrap", style: { maxWidth: 980, marginLeft: "auto", marginRight: "auto" } },
+h(Reveal, { className: "wrap", style: { maxWidth: 1240, marginLeft: "auto", marginRight: "auto" } },
+h("div", { className: "herkunft-head" },
+h("div", { className: "hh-text" },
 h(Eyebrow, { num: "// Seit 1993" }, "Die Agentur hinter Beyond Marketing"),
 h("h2", { style: { fontFamily: "Poppins", fontWeight: 800, fontSize: "clamp(28px,4vw,52px)", lineHeight: 1.04, letterSpacing: "-.02em", textWrap: "balance", marginTop: 14, marginBottom: 18, maxWidth: 760 } }, "33 Jahre Marketing. ", h("span", { style: { color: "var(--accent)" } }, "Ein neues Kapitel.")),
-h("p", { className: "lead", style: { maxWidth: 660, marginBottom: "clamp(40px,5vw,62px)" } }, "Beyond Marketing ist kein Start-up-Experiment, sondern die n\u00e4chste Stufe von team::mt \u2014 einer B2B-Marketing-Agentur, die seit 1993 mit Unternehmen w\u00e4chst. Vom Printkatalog \u00fcber digitale Kampagnen bis zur KI."),
+h("p", { className: "lead", style: { maxWidth: 560, marginBottom: 0 } }, "Beyond Marketing ist kein Start-up-Experiment, sondern die n\u00e4chste Stufe von team::mt \u2014 einer B2B-Marketing-Agentur, die seit 1993 mit Unternehmen w\u00e4chst. Vom Printkatalog \u00fcber digitale Kampagnen bis zur KI.")),
+h("div", { className: "team-photo float" },
+h("img", { src: "assets/team/group.avif", alt: "Das team::mt-Team \u2014 Rosenheim & K\u00f6ln", loading: "lazy" }),
+h("span", { className: "tp-scan" }),
+h("span", { className: "tp-cn", style: { top: 12, left: 12, borderTop: "2px solid var(--accent)", borderLeft: "2px solid var(--accent)" } }),
+h("span", { className: "tp-cn", style: { top: 12, right: 12, borderTop: "2px solid var(--accent)", borderRight: "2px solid var(--accent)", animationDelay: ".3s" } }),
+h("span", { className: "tp-cn", style: { bottom: 12, left: 12, borderBottom: "2px solid var(--accent)", borderLeft: "2px solid var(--accent)", animationDelay: ".6s" } }),
+h("span", { className: "tp-cn", style: { bottom: 12, right: 12, borderBottom: "2px solid var(--accent)", borderRight: "2px solid var(--accent)", animationDelay: ".9s" } }))),
 wide
 ? h("div", { ref: trackRef, style: { position: "relative", display: "flex", gap: 18, marginBottom: "clamp(40px,5vw,62px)" } },
 h("div", { "aria-hidden": "true", className: "kiw-tl-line", style: { position: "absolute", left: 8, right: 8, top: 7, height: 2, background: "linear-gradient(90deg, var(--line-strong), var(--accent))", transformOrigin: "left center", transform: shown ? "scaleX(1)" : "scaleX(0)", transition: "transform 1.2s cubic-bezier(.2,.8,.2,1)", animation: shown ? "kiwLinePulse 2.8s ease-in-out infinite" : "none" } }),
