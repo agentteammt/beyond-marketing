@@ -6,11 +6,19 @@ Diese Dateien ersetzen die gleichnamigen Dateien in deinem Repository
 
 ## Geänderte / neue Dateien
 - `index.html`          — GEÄNDERT: Google-Ads-Config (KIW_ADS), neue Skripte
-                          eingebunden, Cache-Versionen erhöht (app.js v85,
-                          legal.js v2, anchors.js, ads-conversion.js).
+                          eingebunden, Cache-Versionen erhöht (app.js v86,
+                          legal.js v2, anchors.js v3, ads-conversion.js).
+                          CSS: Buttons ohne Unterstrich; „Unser Ansatz" bleibt
+                          bei Hover schwarz.
 - `js/app.js`           — GEÄNDERT: fehlende Sprungmarken-IDs ergänzt
                           (leistungen-index, herkunft, abschluss, ansatz-intro,
-                          team-intro).
+                          team-intro). Navigations-Buttons (Header-CTA, Hero
+                          „Gespräch anfragen"/„Unser Ansatz", Footer-CTA,
+                          Leistungs-Index) sind jetzt echte <a href>-Links ->
+                          Browser zeigt die Ziel-URL beim Hover. scrollToId
+                          schreibt die Sprungmarke in die URL und landet bei
+                          animierten Leistungs-Bereichen dort, wo der Inhalt
+                          sichtbar ist (nicht mehr am leeren Anfang).
 - `js/legal.js`         — GEÄNDERT: Cookie-Banner um Kategorie „Marketing"
                           (Google Ads) erweitert; Consent Mode v2 schaltet
                           ad_storage erst nach Einwilligung frei.
@@ -23,9 +31,9 @@ Diese Dateien ersetzen die gleichnamigen Dateien in deinem Repository
                           Ads, nur nach Marketing-Einwilligung.
 
 ## Vor dem Live-Gang beachten
-- Google-Ads-Tracking läuft aktuell im TESTMODUS. Zum Scharfschalten in
-  `index.html` bei `window.KIW_ADS` -> `test: false` setzen
-  (schaltet nur die Konsolen-Logs ab, Funktion bleibt gleich).
+- Google-Ads-Tracking ist SCHARF geschaltet (`window.KIW_ADS.test: false`).
+  Die Conversion feuert beim Klick auf „Gespräch anfragen" (Header) nur nach
+  Marketing-Einwilligung. Zum Debuggen ggf. wieder `test: true` setzen.
 - Prüfen, ob die Kontowährung in Google Ads EUR ist; sonst
   `KIW_ADS.currency` anpassen.
 

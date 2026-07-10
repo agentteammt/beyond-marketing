@@ -39,6 +39,15 @@
     smoothTo(top);
   }
 
+  // Bevorzugt die App-Logik (reveal-aware: landet bei animierten Bereichen
+  // dort, wo der Inhalt bereits sichtbar ist), sonst simpler Scroll.
+  function scrollToTarget(id) {
+    if (typeof window.__scrollToId === "function") { window.__scrollToId(id); return true; }
+    var el = document.getElementById(id);
+    if (el) { scrollToEl(el); return true; }
+    return false;
+  }
+
   // Deep-Link beim Laden: auf die Ziel-Sektion scrollen, sobald sie existiert
   function honorDeepLink() {
     var id = sectionFromHash();
@@ -46,7 +55,20 @@
     var tries = 0;
     (function poll() {
       var el = document.getElementById(id);
-      if (el) { setTimeout(function () { scrollToEl(el); }, 120); return; }
+      if (el) {
+        var animated = /^leistung-\d+$/.test(id);
+        if (!animated) { setTimeout(function () { scrollToTarget(id); }, 120); return; }
+        // Animierter Bereich: kurz auf das Reveal-Ziel warten, damit wir dort
+        // landen, wo der Inhalt voll sichtbar ist (nicht auf dem leeren Anfang).
+        var t2 = 0;
+        (function waitReveal() {
+          if ((window.__revealTargets && typeof window.__revealTargets[id] === "function") || t2++ > 12) {
+            scrollToTarget(id); return;
+          }
+          setTimeout(waitReveal, 80);
+        })();
+        return;
+      }
       if (tries++ < 40) setTimeout(poll, 100); // bis ~4s versuchen
     })();
   }
@@ -56,7 +78,7 @@
     // Deep-Link innerhalb derselben Route (app.js lädt bei Routenwechsel neu)
     window.addEventListener("hashchange", function () {
       var id = sectionFromHash();
-      if (id) { var el = document.getElementById(id); if (el) scrollToEl(el); }
+      if (id) scrollToTarget(id);
     });
   }
 
