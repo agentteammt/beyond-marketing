@@ -783,6 +783,24 @@ opacity:.92 !important; animation:heroFloat 7.5s ease-in-out infinite !important
     window.KIW_GA_ID = "G-09H4N76NEF";
   </script>
 
+  <!-- ============================================================
+       GOOGLE ADS — Conversion-Tracking (ersetzt GTM für DIESE Conversion).
+       Auslöser: Klick auf den Header-Button „Gespräch anfragen".
+       Feuert AUSSCHLIESSLICH nach Marketing-Einwilligung (Consent Mode v2)
+       und NUR an Google Ads (send_to), NICHT an GA4.
+       test:true  = Konsolen-Logs + manueller Test via kiwTestAdsConversion().
+       Vor dem Live-Gang test:false setzen.
+       ============================================================ -->
+  <script>
+    window.KIW_ADS = {
+      id: "AW-10805996079",
+      label: "qMiwCICQks4cEK_U2aAo",
+      value: 1,
+      currency: "EUR",
+      test: true
+    };
+  </script>
+
   <!-- React (PRODUKTION) — selbst gehostet. JSX wird vorab zu js/*.js kompiliert,
        daher KEIN Babel im Browser mehr (großer Performance-Gewinn). -->
   <script defer src="js/vendor/react.production.min.js"></script>
@@ -798,11 +816,15 @@ opacity:.92 !important; animation:heroFloat 7.5s ease-in-out infinite !important
   <script defer src="js/heroIntro.js?v=4"></script>
   <script defer src="js/missionTimer.js?v=3"></script>
   <script defer src="js/baustellenschild.js?v=3"></script>
-  <script defer src="js/app.js?v=84"></script>
+  <script defer src="js/app.js?v=85"></script>
+  <!-- Sprungmarken: Deep-Links (#/route/anker) + sichtbare Hover-Anker -->
+  <script defer src="js/anchors.js?v=2"></script>
   <!-- DSGVO: Cookie-Consent-Banner + Footer-Rechtslinks (vanilla, nach app) -->
-  <script defer src="js/legal.js"></script>
+  <script defer src="js/legal.js?v=2"></script>
   <!-- GA4 Event-Tracking (Beyond_*) — Klicks, Scroll-Tiefe, Engagement. Läuft über Consent Mode. -->
   <script defer src="js/tracking.js?v=2"></script>
+  <!-- Google Ads Conversion (Header-CTA „Gespräch anfragen") — nach legal.js/tracking.js -->
+  <script defer src="js/ads-conversion.js?v=1"></script>
 </body>
 </html>
 

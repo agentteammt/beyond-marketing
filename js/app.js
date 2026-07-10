@@ -2495,7 +2495,7 @@ window.addEventListener("resize", compute);
 return () => window.removeEventListener("resize", compute);
 }, [hideWhenCinematic]);
 if (hidden) return null;
-return h("section", { className: "sec-pad grid-bg", style: { borderTop: "1px solid var(--line)" } },
+return h("section", { id: "leistungen-index", className: "sec-pad grid-bg", style: { borderTop: "1px solid var(--line)" } },
 h("div", { className: "wrap", style: { maxWidth: 980, margin: "0 auto" } },
 h("div", { style: { display: "flex", justifyContent: "flex-start" } }, h(Eyebrow, { num: "// Leistungen" }, "Was wir tun")),
 h("h2", { style: { fontFamily: "Poppins", fontWeight: 800, fontSize: "clamp(28px,4vw,48px)", textWrap: "balance", letterSpacing: "-.01em", maxWidth: 760, marginTop: 10, marginBottom: "clamp(20px,3vw,36px)" } }, "F\u00fcnf Hebel, ein Ziel: ", h("span", { style: { color: "var(--accent)" } }, "sichtbares Marketing.")),
@@ -2835,7 +2835,7 @@ h("div", { style: { position: "sticky", top: 0, height: "100vh", overflow: "hidd
 h("video", { ref: vidRef, src: "assets/leistungen/social.mp4", muted: true, playsInline: true, preload: "metadata", style: { position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" } })));
 }
 function AbschlussCTA({ onBook }) {
-return h("section", { style: { position: "relative", overflow: "hidden", padding: "clamp(96px,14vw,180px) 0", borderTop: "1px solid var(--line)" } },
+return h("section", { id: "abschluss", style: { position: "relative", overflow: "hidden", padding: "clamp(96px,14vw,180px) 0", borderTop: "1px solid var(--line)" } },
 h("div", { "aria-hidden": "true", style: { position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none" } },
 h("span", { className: "cta-blob cta-blob1", style: { left: "50%", top: "50%", width: "46vmax", height: "46vmax", background: "radial-gradient(circle, color-mix(in srgb,var(--accent) 60%, transparent), transparent 70%)" } }),
 h("span", { className: "cta-blob cta-blob2", style: { left: "50%", top: "50%", width: "38vmax", height: "38vmax", background: "radial-gradient(circle, color-mix(in srgb,var(--accent) 40%, transparent), transparent 70%)" } }),
@@ -2897,7 +2897,7 @@ on();
 mq.addEventListener ? mq.addEventListener("change", on) : mq.addListener(on);
 return () => { mq.removeEventListener ? mq.removeEventListener("change", on) : mq.removeListener(on); };
 }, []);
-return h("section", { className: "sec-pad grid-bg", style: { borderTop: "1px solid var(--line)" } },
+return h("section", { id: "herkunft", className: "sec-pad grid-bg", style: { borderTop: "1px solid var(--line)" } },
 h(Reveal, { className: "wrap", style: { maxWidth: 1240, marginLeft: "auto", marginRight: "auto" } },
 h("div", { className: "herkunft-head" },
 h("div", { className: "hh-text" },
@@ -2996,7 +2996,7 @@ h("span", { "aria-hidden": "true", style: { display: "inline-grid", placeItems: 
 "LinkedIn") : null));
 }
 function AnsatzHero() {
-return h("section", { className: "grid-bg mglow", style: { position: "relative", overflow: "hidden", minHeight: "82vh", display: "flex", alignItems: "center", paddingTop: "clamp(120px,14vh,180px)", paddingBottom: "clamp(56px,8vw,96px)", borderBottom: "1px solid var(--line)" } },
+return h("section", { id: "ansatz-intro", className: "grid-bg mglow", style: { position: "relative", overflow: "hidden", minHeight: "82vh", display: "flex", alignItems: "center", paddingTop: "clamp(120px,14vh,180px)", paddingBottom: "clamp(56px,8vw,96px)", borderBottom: "1px solid var(--line)" } },
 h("div", { className: "wrap teamgrid", style: { position: "relative", zIndex: 1, display: "grid", gridTemplateColumns: "1.1fr .9fr", gap: "clamp(28px,4vw,60px)", alignItems: "center" } },
 h("div", null,
 h(Eyebrow, { num: "// Unser Ansatz" }, "Beyond Marketing"),
@@ -3009,7 +3009,7 @@ h("div", { style: { display: "flex", justifyContent: "center", alignItems: "cent
 h("img", { src: "assets/ansatz-arrow.webp", alt: "Roter Glas-Pfeil – 360°-Ansatz der KI Marketing Agentur team::mt", "aria-hidden": "true", className: "prozess-float", loading: "lazy", width: 900, height: 900, style: { width: "clamp(210px,28vw,380px)", height: "auto", filter: "drop-shadow(0 30px 52px color-mix(in srgb,var(--accent) 40%, transparent))" } }))));
 }
 function TeamSeite({ onBook }) {
-const hero = h("section", { className: "grid-bg mglow", style: { position: "relative", overflow: "hidden", paddingTop: "clamp(132px,15vh,190px)", paddingBottom: "clamp(56px,8vw,96px)", borderBottom: "1px solid var(--line)" } },
+const hero = h("section", { id: "team-intro", className: "grid-bg mglow", style: { position: "relative", overflow: "hidden", paddingTop: "clamp(132px,15vh,190px)", paddingBottom: "clamp(56px,8vw,96px)", borderBottom: "1px solid var(--line)" } },
 h("div", { className: "wrap teamgrid", style: { position: "relative", zIndex: 1, display: "grid", gridTemplateColumns: "1.02fr .98fr", gap: "clamp(32px,4.5vw,64px)", alignItems: "center" } },
 h("div", null,
 h(Eyebrow, { num: "// team::mt" }, "Lernen Sie uns kennen"),
