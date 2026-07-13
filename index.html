@@ -140,7 +140,7 @@ color:var(--ink) !important;
 .btn{
 position:relative;display:inline-flex;align-items:center;justify-content:center;gap:10px;
 font-family:"Poppins",sans-serif;font-weight:600;font-size:15px;letter-spacing:.01em;
-padding:15px 26px;border-radius:2px;cursor:pointer;border:0;text-decoration:none;
+padding:15px 26px;border-radius:2px;cursor:pointer;border:0;
 transition:transform .25s cubic-bezier(.2,.8,.2,1), box-shadow .3s, background .3s;
 will-change:transform;text-align:center;
 }
@@ -156,7 +156,6 @@ background:rgba(180,220,255,.04);color:var(--ink);
 box-shadow:inset 0 0 0 1px var(--line-strong);
 }
 .btn-ghost:hover{ box-shadow:inset 0 0 0 1px var(--accent), 0 0 calc(30px*var(--glow)) color-mix(in srgb,var(--accent) 30%, transparent); color:#fff }
-.btn-ghost.hero-secondary:hover{ color:var(--ink) }
 .btn svg{width:16px;height:16px;flex:none}
 .hazard{
 background-image:repeating-linear-gradient(45deg, var(--caution) 0 16px, #0b0e16 16px 32px);
@@ -784,24 +783,6 @@ opacity:.92 !important; animation:heroFloat 7.5s ease-in-out infinite !important
     window.KIW_GA_ID = "G-09H4N76NEF";
   </script>
 
-  <!-- ============================================================
-       GOOGLE ADS — Conversion-Tracking (ersetzt GTM für DIESE Conversion).
-       Auslöser: Klick auf den Header-Button „Gespräch anfragen".
-       Feuert AUSSCHLIESSLICH nach Marketing-Einwilligung (Consent Mode v2)
-       und NUR an Google Ads (send_to), NICHT an GA4.
-       test:true  = Konsolen-Logs + manueller Test via kiwTestAdsConversion().
-       Vor dem Live-Gang test:false setzen.
-       ============================================================ -->
-  <script>
-    window.KIW_ADS = {
-      id: "AW-10805996079",
-      label: "qMiwCICQks4cEK_U2aAo",
-      value: 1,
-      currency: "EUR",
-      test: false
-    };
-  </script>
-
   <!-- React (PRODUKTION) — selbst gehostet. JSX wird vorab zu js/*.js kompiliert,
        daher KEIN Babel im Browser mehr (großer Performance-Gewinn). -->
   <script defer src="js/vendor/react.production.min.js"></script>
@@ -817,15 +798,11 @@ opacity:.92 !important; animation:heroFloat 7.5s ease-in-out infinite !important
   <script defer src="js/heroIntro.js?v=4"></script>
   <script defer src="js/missionTimer.js?v=3"></script>
   <script defer src="js/baustellenschild.js?v=3"></script>
-  <script defer src="js/app.js?v=87"></script>
-  <!-- Sprungmarken: Deep-Links (#/route/anker) + sichtbare Hover-Anker -->
-  <script defer src="js/anchors.js?v=3"></script>
+  <script defer src="js/app.js?v=84"></script>
   <!-- DSGVO: Cookie-Consent-Banner + Footer-Rechtslinks (vanilla, nach app) -->
-  <script defer src="js/legal.js?v=2"></script>
+  <script defer src="js/legal.js"></script>
   <!-- GA4 Event-Tracking (Beyond_*) — Klicks, Scroll-Tiefe, Engagement. Läuft über Consent Mode. -->
   <script defer src="js/tracking.js?v=2"></script>
-  <!-- Google Ads Conversion (Header-CTA „Gespräch anfragen") — nach legal.js/tracking.js -->
-  <script defer src="js/ads-conversion.js?v=1"></script>
 </body>
 </html>
 

@@ -62,17 +62,7 @@ behavior: PRM() ? "auto" : "smooth"
 }
 const h = React.createElement;
 const H_PANELS = ["ansatz", "loesung"];
-function hrefFor(id) {
-var m = (location.hash || "").toLowerCase().match(/^#\/(ansatz|leistungen|team)\b/);
-return m ? "#/" + m[1] + "/" + id : "#" + id;
-}
-function setUrlHash(id) { try { history.replaceState(null, "", hrefFor(id)); } catch (e) {} }
 function scrollToId(id) {
-const reg = window.__revealTargets && window.__revealTargets[id];
-if (typeof reg === "function") {
-const y = reg();
-if (typeof y === "number" && !isNaN(y)) { setUrlHash(id); smoothScrollTo(y); return; }
-}
 const hi = H_PANELS.indexOf(id);
 if (hi !== -1) {
 const hs = window.__hscroll;
@@ -84,15 +74,13 @@ frac = (hi * (U.dwell + U.slide) + U.dwell / 2) / U.total;
 } else {
 frac = hs.count > 1 ? hi / (hs.count - 1) : 0;
 }
-setUrlHash(id);
 smoothScrollTo(hs.st.start + frac * (hs.st.end - hs.st.start));
 return;
 }
 }
 const el = document.getElementById(id);
-if (el) { setUrlHash(id); smoothScrollTo(el.getBoundingClientRect().top + window.scrollY - 64); }
+if (el) smoothScrollTo(el.getBoundingClientRect().top + window.scrollY - 64);
 }
-try { window.__scrollToId = scrollToId; } catch (e) {}
 function getRoute() {
 var m = (location.hash || "").toLowerCase().match(/^#\/(ansatz|leistungen|team)\b/);
 return m ? m[1] : "home";
@@ -149,12 +137,11 @@ className: "beyond-track-nav-link", "data-beyond-event": "Beyond_Nav_Link_" + id
 style: { transition: "color .2s", color: active ? "var(--accent)" : "var(--ink-dim)", fontWeight: active ? 600 : 500 },
 onMouseEnter: e => e.currentTarget.style.color = "var(--accent)",
 onMouseLeave: e => e.currentTarget.style.color = active ? "var(--accent)" : "var(--ink-dim)"
-}, label); })), h("a", {
+}, label); })), h("button", {
 className: "btn btn-cta topbar-cta beyond-track-nav-gespraech",
 "data-beyond-event": "Beyond_Nav_Gespraech",
-href: hrefFor("kontakt"),
 style: { padding: "11px 20px", fontSize: 14 },
-onClick: e => { e.preventDefault(); onBook(e); }
+onClick: onBook
 }, "Gespräch anfragen"), h("button", {
 className: "navburger",
 "aria-label": menuOpen ? "Menü schließen" : "Menü öffnen",
@@ -190,7 +177,7 @@ h("span", null, label));
 const dl = menuOpen ? (0.14 + 3 * 0.08) : 0;
 const ent = { opacity: menuOpen ? 1 : 0, transform: menuOpen ? "translateY(0)" : "translateY(30px)", transition: "opacity .5s ease " + dl + "s, transform .62s cubic-bezier(.2,.8,.2,1) " + dl + "s" };
 return h("div", { style: { marginTop: 38, ...ent } },
-h("a", { className: "btn btn-cta beyond-track-nav-gespraech", "data-beyond-event": "Beyond_Nav_Gespraech", href: hrefFor("kontakt"), style: { width: "100%" }, onClick: e => { e.preventDefault(); setMenuOpen(false); onBook(); } }, "Gespräch anfragen ", h(Icon, { name: "arrow", size: 16 })),
+h("button", { className: "btn btn-cta beyond-track-nav-gespraech", "data-beyond-event": "Beyond_Nav_Gespraech", style: { width: "100%" }, onClick: () => { setMenuOpen(false); onBook(); } }, "Gespräch anfragen ", h(Icon, { name: "arrow", size: 16 })),
 h("div", { style: { display: "flex", gap: 14, flexWrap: "wrap", marginTop: 22, color: "var(--muted)", fontFamily: "Poppins", fontSize: 13.5 } },
 h("span", null, "Rosenheim & Köln"),
 h("span", { "aria-hidden": "true", style: { color: "var(--accent)" } }, "·"),
@@ -488,13 +475,11 @@ gap: 14,
 flexWrap: "wrap",
 marginTop: 38
 }, fade(textDone, 120))
-}, React.createElement("a", {
+}, React.createElement("button", {
 id: "hero-cta-gespraech",
 className: "btn btn-cta beyond-track-hero-cta",
 "data-beyond-skip": "1",
-href: hrefFor("kontakt"),
 onClick: (e) => {
-e.preventDefault();
 try {
 if (window.gtag) gtag("event", "Beyond_Hero_CTA", {
 click_id: "hero-cta-gespraech",
@@ -509,11 +494,10 @@ onBook(e);
 }, "Gespräch anfragen ", React.createElement(Icon, {
 name: "arrow",
 size: 16
-})), React.createElement("a", {
+})), React.createElement("button", {
 className: "btn btn-ghost hero-secondary beyond-track-hero-ansatz",
 "data-beyond-event": "Beyond_Hero_Ansatz",
-href: hrefFor("loesung360"),
-onClick: (e) => { e.preventDefault(); scrollToId("loesung360"); }
+onClick: () => scrollToId("ansatz")
 }, "Unser Ansatz")), React.createElement("div", {
 style: Object.assign({
 display: "flex",
@@ -808,13 +792,12 @@ maxWidth: 520
 }
 }, lead), React.createElement(BigScan, {
 label: scanLabel
-}), React.createElement("a", {
+}), React.createElement("button", {
 className: "btn btn-cta",
-href: hrefFor("kontakt"),
 style: {
 marginTop: 30
 },
-onClick: e => { e.preventDefault(); onBook(e); }
+onClick: onBook
 }, "Slot f\xFCr diesen Check sichern ", React.createElement(Icon, {
 name: "arrow",
 size: 16
@@ -990,10 +973,9 @@ color: "var(--ink-dim)",
 fontSize: 15,
 margin: 0
 }
-}, "Status plus die n\xE4chsten sinnvollen Schritte f\xFCr Ihr Marketing.")), React.createElement("a", {
+}, "Status plus die n\xE4chsten sinnvollen Schritte f\xFCr Ihr Marketing.")), React.createElement("button", {
 className: "btn btn-cta",
-href: hrefFor("kontakt"),
-onClick: e => { e.preventDefault(); onBook(e); }
+onClick: onBook
 }, "Slot sichern ", React.createElement(Icon, {
 name: "arrow",
 size: 16
@@ -1495,10 +1477,9 @@ color: "var(--ink-dim)",
 fontSize: 16,
 marginBottom: 30
 }
-}, "Wir arbeiten an Ihrem echten Material. Sie gehen mit Erkenntnissen, nicht mit einem Flyer."), React.createElement("a", {
+}, "Wir arbeiten an Ihrem echten Material. Sie gehen mit Erkenntnissen, nicht mit einem Flyer."), React.createElement("button", {
 className: "btn btn-cta",
-href: hrefFor("book"),
-onClick: e => { e.preventDefault(); scrollToId("book"); }
+onClick: () => scrollToId("book")
 }, "Slot sichern ", React.createElement(Icon, {
 name: "arrow",
 size: 16
@@ -1658,14 +1639,13 @@ top: 0,
 left: 0,
 right: 0
 }
-}), React.createElement("a", {
+}), React.createElement("button", {
 className: "btn btn-cta beyond-track-sticky-cta",
 "data-beyond-event": "Beyond_Sticky_CTA",
-href: hrefFor("kontakt"),
 style: {
 width: "100%"
 },
-onClick: e => { e.preventDefault(); onBook(e); }
+onClick: onBook
 }, "Werkstatt-Slot sichern ", React.createElement(Icon, {
 name: "arrow",
 size: 16
@@ -1928,7 +1908,7 @@ h("div", null,
 h("h3", { className: "bm-r", style: { fontSize: "clamp(30px,4vw,56px)", lineHeight: 1.04, textWrap: "balance", margin: 0, ...d(0.98) } }, "Sind Sie ", h("span", { style: { color: "var(--accent)" } }, "bereit?")),
 h("p", { className: "bm-r", style: { color: "var(--ink-dim)", fontSize: 16, lineHeight: 1.5, maxWidth: 390, marginTop: 18, ...d(1.1) } }, "Ein 10-Minuten-Gespräch genügt, um zu sehen, wo KI in Ihrem Marketing den größten Hebel setzt."),
 h("div", { className: "bm-r", style: { display: "flex", gap: 14, flexWrap: "wrap", marginTop: 32, ...d(1.22) } },
-h("a", { className: "btn btn-cta", href: hrefFor("kontakt"), onClick: e => { e.preventDefault(); onBook(e); } }, "Termin vereinbaren ", h(Icon, { name: "arrow", size: 16 })),
+h("button", { className: "btn btn-cta", onClick: onBook }, "Termin vereinbaren ", h(Icon, { name: "arrow", size: 16 })),
 h("a", { className: "btn btn-ghost", href: "https://team-mt.de", target: "_blank", rel: "noopener noreferrer" }, "team-mt.de"))))));
 }
 function GlassRing360({ onBook, leistungenHref, forceStatic }) {
@@ -2134,7 +2114,7 @@ h("div", { className: "def-content" },
 h("h3", { style: { fontSize: "clamp(30px,4vw,56px)", lineHeight: 1.04, textWrap: "balance", margin: 0 } }, "Sind Sie ", h("span", { style: { color: "var(--accent)" } }, "bereit?")),
 h("p", { style: { color: "var(--ink-dim)", fontSize: 16, lineHeight: 1.5, maxWidth: 390, marginTop: 18 } }, "Ein 10-Minuten-Gespräch genügt, um zu sehen, wo KI in Ihrem Marketing den größten Hebel setzt."),
 h("div", { style: { display: "flex", gap: 14, flexWrap: "wrap", marginTop: 30 } },
-h("a", { className: "btn btn-cta beyond-track-loesung-termin", "data-beyond-event": "Beyond_Loesung_Termin", href: hrefFor("kontakt"), onClick: e => { e.preventDefault(); onBook(e); } }, "Termin vereinbaren ", h(Icon, { name: "arrow", size: 16 }))),
+h("button", { className: "btn btn-cta beyond-track-loesung-termin", "data-beyond-event": "Beyond_Loesung_Termin", onClick: onBook }, "Termin vereinbaren ", h(Icon, { name: "arrow", size: 16 }))),
 h("button", { onClick: goIndex, style: { display: "inline-flex", alignItems: "center", gap: 8, marginTop: 18, padding: 0, background: "none", border: "none", cursor: "pointer", fontFamily: "Poppins", fontWeight: 600, fontSize: 15, color: "var(--accent)" } }, "Dann fangen wir hier an", h(Icon, { name: "arrow", size: 16 })))))))),
 h("div", { ref: idxRef, style: { position: "absolute", inset: 0, zIndex: 7, display: "flex", alignItems: "center", justifyContent: "center", padding: "10vh 5vw", opacity: 0, transform: "translateX(60vw)", pointerEvents: "none" } },
 h("div", { className: "wrap", style: { maxWidth: 980, margin: "0 auto", width: "100%" } },
@@ -2260,7 +2240,7 @@ h("p", { className: "lead", style: { fontSize: "clamp(17px,1.9vw,21px)", maxWidt
 h("ul", { style: { listStyle: "none", padding: 0, margin: "0 0 30px", display: "grid", gap: 13 } },
 proof.map(([ic, t]) => h("li", { key: t, style: { display: "flex", alignItems: "center", gap: 13, fontFamily: "Poppins", fontWeight: 500, fontSize: "clamp(14px,1.5vw,15.5px)", color: "var(--ink)" } },
 h("span", { style: { flex: "none", width: 38, height: 38, borderRadius: 2, display: "grid", placeItems: "center", color: "var(--accent)", boxShadow: "inset 0 0 0 1px var(--line-strong)" } }, h(Icon, { name: ic, size: 18 })), t))),
-h("a", { className: "btn btn-cta beyond-track-labor-gespraech", "data-beyond-event": "Beyond_Labor_Gespraech_CTA", href: hrefFor("kontakt"), onClick: e => { e.preventDefault(); onBook(e); } }, "Gespräch anfragen ", h(Icon, { name: "arrow", size: 16 }))),
+h("button", { className: "btn btn-cta beyond-track-labor-gespraech", "data-beyond-event": "Beyond_Labor_Gespraech_CTA", onClick: onBook }, "Gespräch anfragen ", h(Icon, { name: "arrow", size: 16 }))),
 h(LiveConsole, null)))),
 h(HazardEdge, { thin: true, animate: true, style: { position: "absolute", bottom: 0, left: 0, right: 0 } }));
 }
@@ -2396,7 +2376,7 @@ h(Eyebrow, { num: d.num }, d.eyebrow),
 h("h2", { style: { fontFamily: "Poppins", fontWeight: 800, fontSize: "clamp(28px,3.6vw,48px)", lineHeight: 1.05, letterSpacing: "-.01em", textWrap: "balance" } }, d.title),
 h("p", { className: "lead", style: { fontSize: "clamp(16px,1.8vw,20px)", marginTop: 16, maxWidth: 480 } }, d.sub),
 h("div", { style: { display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap", marginTop: 24 } },
-h("a", { className: "btn btn-cta beyond-track-leistung-cta", "data-beyond-event": "Beyond_Leistung_CTA_" + beyondSlug(d.eyebrow), href: hrefFor("kontakt"), onClick: e => { e.preventDefault(); onBook(e); } }, d.cta, " ", h(Icon, { name: "arrow", size: 16 })),
+h("button", { className: "btn btn-cta beyond-track-leistung-cta", "data-beyond-event": "Beyond_Leistung_CTA_" + beyondSlug(d.eyebrow), onClick: onBook }, d.cta, " ", h(Icon, { name: "arrow", size: 16 })),
 h("span", { style: { fontFamily: '"EB Garamond", Georgia, serif', fontStyle: "italic", fontSize: "clamp(15px,1.7vw,18px)", color: "var(--accent)" } }, d.result)));
 }
 function LeistungChapter({ d, flip, onBook }) {
@@ -2476,13 +2456,10 @@ trigger: stage, start: "top top",
 end: () => "+=" + window.innerHeight * (d.video ? 4.2 : 1.35),
 pin: true, pinSpacing: true,
 onUpdate: self => { const p = self.progress; if (p > maxP) maxP = p; paint(maxP >= 0.95 ? 1 : maxP); } });
-const __rid = "leistung-" + d.num.replace("// ", "");
-window.__revealTargets = window.__revealTargets || {};
-window.__revealTargets[__rid] = function () { return st.start + 0.9 * (st.end - st.start); };
 paint(0);
 const refresh = () => ScrollTrigger.refresh();
 const t = setTimeout(refresh, 450); window.addEventListener("load", refresh);
-return () => { clearTimeout(t); window.removeEventListener("load", refresh); if (window.__revealTargets) delete window.__revealTargets[__rid]; st.kill(); ScrollTrigger.refresh(); };
+return () => { clearTimeout(t); window.removeEventListener("load", refresh); st.kill(); ScrollTrigger.refresh(); };
 }, [enabled]);
 if (!enabled) {
 return h("section", { id: "leistung-" + d.num.replace("// ", ""), className: "sec-pad grid-bg", style: { borderTop: "1px solid var(--line)" } },
@@ -2518,11 +2495,11 @@ window.addEventListener("resize", compute);
 return () => window.removeEventListener("resize", compute);
 }, [hideWhenCinematic]);
 if (hidden) return null;
-return h("section", { id: "leistungen-index", className: "sec-pad grid-bg", style: { borderTop: "1px solid var(--line)" } },
+return h("section", { className: "sec-pad grid-bg", style: { borderTop: "1px solid var(--line)" } },
 h("div", { className: "wrap", style: { maxWidth: 980, margin: "0 auto" } },
 h("div", { style: { display: "flex", justifyContent: "flex-start" } }, h(Eyebrow, { num: "// Leistungen" }, "Was wir tun")),
 h("h2", { style: { fontFamily: "Poppins", fontWeight: 800, fontSize: "clamp(28px,4vw,48px)", textWrap: "balance", letterSpacing: "-.01em", maxWidth: 760, marginTop: 10, marginBottom: "clamp(20px,3vw,36px)" } }, "F\u00fcnf Hebel, ein Ziel: ", h("span", { style: { color: "var(--accent)" } }, "sichtbares Marketing.")),
-h("div", null, CHAPTERS.map((d) => { const cid = "leistung-" + d.num.replace("// ", ""); return h("a", { key: d.num, href: hrefFor(cid), onClick: e => { e.preventDefault(); scrollToId(cid); }, className: "lidx-row", style: { cursor: "pointer" } },
+h("div", null, CHAPTERS.map((d) => { const cid = "leistung-" + d.num.replace("// ", ""); return h("a", { key: d.num, href: "#" + cid, onClick: e => { e.preventDefault(); scrollToId(cid); }, className: "lidx-row", style: { cursor: "pointer" } },
 h("span", { className: "lidx-num" }, d.num.replace("// ", "")),
 h("span", { className: "lidx-name", style: { display: "flex", alignItems: "center", gap: "clamp(12px,1.4vw,18px)" } },
 h("img", { src: d.img, alt: "", "aria-hidden": "true", loading: "lazy", width: 1000, height: 1000, style: { width: "clamp(40px,3.6vw,56px)", height: "auto", flex: "none", filter: "drop-shadow(0 6px 16px color-mix(in srgb,var(--accent) 34%, transparent))" } }),
@@ -2566,7 +2543,7 @@ h("h3", { style: { fontSize: 22, marginBottom: 10 } }, title),
 h("p", { style: { color: "var(--ink-dim)", fontSize: 14.5, lineHeight: 1.55, margin: "0 auto", maxWidth: 286 } }, body),
 h("ul", { style: { listStyle: "none", padding: 0, margin: "20px 0 26px", display: "grid", gap: 10, textAlign: "left" } },
 points.map(p => h("li", { key: p, style: { display: "flex", gap: 10, alignItems: "center", fontSize: 14, color: "var(--ink)" } }, h("span", { style: { color: "var(--accent)", flex: "none", display: "inline-flex" } }, h(Icon, { name: "check", size: 15, stroke: 2.4 })), p))),
-h("a", { className: "btn btn-cta beyond-track-paket-cta", "data-beyond-event": "Beyond_Paket_CTA_" + beyondSlug(title), style: { marginTop: "auto", width: "100%" }, href: hrefFor("kontakt"), onClick: e => { e.preventDefault(); onBook(e); } }, cta, " ", h(Icon, { name: "arrow", size: 15 }))));
+h("button", { className: "btn btn-cta beyond-track-paket-cta", "data-beyond-event": "Beyond_Paket_CTA_" + beyondSlug(title), style: { marginTop: "auto", width: "100%" }, onClick: onBook }, cta, " ", h(Icon, { name: "arrow", size: 15 }))));
 }
 function DreiPaketeSection({ onBook }) {
 return h("section", { id: "pakete", className: "sec-pad grid-bg" },
@@ -2680,7 +2657,7 @@ h("span", { style: { color: "var(--accent)", display: "inline-flex", transform: 
 h("div", { className: "mt-unit", style: { marginTop: 11 } }, "Wachstum"))),
 h("div", { style: { fontFamily: "Poppins", fontWeight: 800, fontSize: "clamp(24px,3.4vw,42px)", lineHeight: 1.1, letterSpacing: "-.01em", textWrap: "balance", maxWidth: 760, margin: "0 auto 34px" } }, "Innovation braucht Mut. ", h("span", { style: { color: "var(--accent)" } }, "Wir bringen ihn mit.")),
 h("div", { style: { display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center" } },
-h("a", { className: "btn btn-cta beyond-track-team-cta", "data-beyond-event": "Beyond_Team_Termin", href: hrefFor("kontakt"), onClick: e => { e.preventDefault(); onBook(e); } }, "Termin vereinbaren ", h(Icon, { name: "arrow", size: 16 })),
+h("button", { className: "btn btn-cta beyond-track-team-cta", "data-beyond-event": "Beyond_Team_Termin", onClick: onBook }, "Termin vereinbaren ", h(Icon, { name: "arrow", size: 16 })),
 h("a", { className: "btn btn-ghost", href: "https://team-mt.de", target: "_blank", rel: "noopener noreferrer" }, "team-mt.de")))));
 }
 const tmtInp = { background: "rgba(140,190,230,.05)", border: "1px solid var(--line-strong)", borderRadius: 2, padding: "12px 14px", color: "var(--ink)", fontFamily: "Poppins", fontSize: 14, outline: "none", minWidth: 0, maxWidth: "100%" };
@@ -2802,7 +2779,7 @@ h("button", { className: "btn btn-cta beyond-track-booking-submit", "data-beyond
 h("p", { style: { textAlign: "center", color: "var(--muted)", fontSize: 12, marginTop: 14, marginBottom: 0 } }, live ? "Echtzeit-Verfügbarkeit · Bestätigung per E-Mail" : "Wöchentlich wiederkehrende Termine · Bestätigung per E-Mail")));
 }
 function TeamMarquee() {
-var pos = { "Martina Manich": "50% 16%", "Katja Limbrunner": "50% 12%", "Moritz Freese": "50% 14%", "Marius Brinschwitz": "50% 14%", "Ulrike Zenker": "50% 10%", "Joelle Lenz": "50% 12%", "Anzhelika Balzer": "50% 14%", "Marcel Richtfeld": "50% 10%" };
+var pos = { "Martina Manich": "50% 16%", "Katja Limbrunner": "50% 12%", "Moritz Freese": "50% 14%", "Marius Brinschwitz": "50% 14%", "Eva Reiske": "50% 14%", "Doris Bremer": "50% 12%", "Ulrike Zenker": "50% 10%", "Joelle Lenz": "50% 12%", "Anzhelika Balzer": "50% 14%", "Marcel Richtfeld": "50% 10%" };
 var list = TEAM_MEMBERS.filter(function (m) { return pos[m.n]; });
 var item = function (m, key) {
 return h("div", { key: key, style: { flex: "none", display: "flex", flexDirection: "column", alignItems: "center", gap: 9, width: 128 } },
@@ -2858,7 +2835,7 @@ h("div", { style: { position: "sticky", top: 0, height: "100vh", overflow: "hidd
 h("video", { ref: vidRef, src: "assets/leistungen/social.mp4", muted: true, playsInline: true, preload: "metadata", style: { position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" } })));
 }
 function AbschlussCTA({ onBook }) {
-return h("section", { id: "abschluss", style: { position: "relative", overflow: "hidden", padding: "clamp(96px,14vw,180px) 0", borderTop: "1px solid var(--line)" } },
+return h("section", { style: { position: "relative", overflow: "hidden", padding: "clamp(96px,14vw,180px) 0", borderTop: "1px solid var(--line)" } },
 h("div", { "aria-hidden": "true", style: { position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none" } },
 h("span", { className: "cta-blob cta-blob1", style: { left: "50%", top: "50%", width: "46vmax", height: "46vmax", background: "radial-gradient(circle, color-mix(in srgb,var(--accent) 60%, transparent), transparent 70%)" } }),
 h("span", { className: "cta-blob cta-blob2", style: { left: "50%", top: "50%", width: "38vmax", height: "38vmax", background: "radial-gradient(circle, color-mix(in srgb,var(--accent) 40%, transparent), transparent 70%)" } }),
@@ -2866,8 +2843,8 @@ h("span", { className: "cta-blob cta-blob3", style: { left: "50%", top: "50%", w
 h(Reveal, { className: "wrap", style: { position: "relative", zIndex: 1, textAlign: "center", maxWidth: 820, marginLeft: "auto", marginRight: "auto" } },
 h("h2", { style: { fontSize: "clamp(34px,5.4vw,68px)", lineHeight: 1.02, textWrap: "balance", marginBottom: 30 } }, "Bereit für Marketing, ", h("span", { style: { color: "var(--accent)" } }, "das mehr kann?")),
 h("div", { style: { display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center" } },
-h("a", { className: "btn btn-cta beyond-track-abschluss-cta", "data-beyond-event": "Beyond_Abschluss_Termin", href: hrefFor("kontakt"), onClick: e => { e.preventDefault(); onBook(e); } }, "Termin vereinbaren ", h(Icon, { name: "arrow", size: 16 })),
-h("a", { className: "btn btn-ghost beyond-track-abschluss-werkstatt", "data-beyond-event": "Beyond_Abschluss_Werkstatt", href: hrefFor("kontakt"), onClick: e => { e.preventDefault(); onBook(e); } }, "KI-Audit anfordern"))));
+h("button", { className: "btn btn-cta beyond-track-abschluss-cta", "data-beyond-event": "Beyond_Abschluss_Termin", onClick: onBook }, "Termin vereinbaren ", h(Icon, { name: "arrow", size: 16 })),
+h("button", { className: "btn btn-ghost beyond-track-abschluss-werkstatt", "data-beyond-event": "Beyond_Abschluss_Werkstatt", onClick: onBook }, "KI-Audit anfordern"))));
 }
 function HerkunftSection() {
 const nodes = [
@@ -2920,7 +2897,7 @@ on();
 mq.addEventListener ? mq.addEventListener("change", on) : mq.addListener(on);
 return () => { mq.removeEventListener ? mq.removeEventListener("change", on) : mq.removeListener(on); };
 }, []);
-return h("section", { id: "herkunft", className: "sec-pad grid-bg", style: { borderTop: "1px solid var(--line)" } },
+return h("section", { className: "sec-pad grid-bg", style: { borderTop: "1px solid var(--line)" } },
 h(Reveal, { className: "wrap", style: { maxWidth: 1240, marginLeft: "auto", marginRight: "auto" } },
 h("div", { className: "herkunft-head" },
 h("div", { className: "hh-text" },
@@ -2973,7 +2950,7 @@ h("div", { style: tmtFHead }, "Navigation"),
 h("div", null,
 h("div", { style: tmtFHead }, "Kontakt"),
 h("p", { style: { color: "var(--ink-dim)", fontSize: 14, marginTop: 0, marginBottom: 18 } }, "Lassen Sie uns über Ihr Marketing sprechen."),
-h("a", { className: "btn btn-cta beyond-track-footer-gespraech", "data-beyond-event": "Beyond_Footer_Gespraech", href: hrefFor("kontakt"), onClick: e => { e.preventDefault(); onBook(e); } }, "Gespräch anfragen ", h(Icon, { name: "arrow", size: 16 })))),
+h("button", { className: "btn btn-cta beyond-track-footer-gespraech", "data-beyond-event": "Beyond_Footer_Gespraech", onClick: onBook }, "Gespräch anfragen ", h(Icon, { name: "arrow", size: 16 })))),
 h(NeonDivider, null),
 h("div", { style: { display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 12, paddingTop: 22, color: "var(--muted)", fontSize: 12.5, fontFamily: "Poppins", letterSpacing: ".05em" } },
 h("span", null, "© 2026 team::mt"),
@@ -3019,7 +2996,7 @@ h("span", { "aria-hidden": "true", style: { display: "inline-grid", placeItems: 
 "LinkedIn") : null));
 }
 function AnsatzHero() {
-return h("section", { id: "ansatz-intro", className: "grid-bg mglow", style: { position: "relative", overflow: "hidden", minHeight: "82vh", display: "flex", alignItems: "center", paddingTop: "clamp(120px,14vh,180px)", paddingBottom: "clamp(56px,8vw,96px)", borderBottom: "1px solid var(--line)" } },
+return h("section", { className: "grid-bg mglow", style: { position: "relative", overflow: "hidden", minHeight: "82vh", display: "flex", alignItems: "center", paddingTop: "clamp(120px,14vh,180px)", paddingBottom: "clamp(56px,8vw,96px)", borderBottom: "1px solid var(--line)" } },
 h("div", { className: "wrap teamgrid", style: { position: "relative", zIndex: 1, display: "grid", gridTemplateColumns: "1.1fr .9fr", gap: "clamp(28px,4vw,60px)", alignItems: "center" } },
 h("div", null,
 h(Eyebrow, { num: "// Unser Ansatz" }, "Beyond Marketing"),
@@ -3032,14 +3009,14 @@ h("div", { style: { display: "flex", justifyContent: "center", alignItems: "cent
 h("img", { src: "assets/ansatz-arrow.webp", alt: "Roter Glas-Pfeil – 360°-Ansatz der KI Marketing Agentur team::mt", "aria-hidden": "true", className: "prozess-float", loading: "lazy", width: 900, height: 900, style: { width: "clamp(210px,28vw,380px)", height: "auto", filter: "drop-shadow(0 30px 52px color-mix(in srgb,var(--accent) 40%, transparent))" } }))));
 }
 function TeamSeite({ onBook }) {
-const hero = h("section", { id: "team-intro", className: "grid-bg mglow", style: { position: "relative", overflow: "hidden", paddingTop: "clamp(132px,15vh,190px)", paddingBottom: "clamp(56px,8vw,96px)", borderBottom: "1px solid var(--line)" } },
+const hero = h("section", { className: "grid-bg mglow", style: { position: "relative", overflow: "hidden", paddingTop: "clamp(132px,15vh,190px)", paddingBottom: "clamp(56px,8vw,96px)", borderBottom: "1px solid var(--line)" } },
 h("div", { className: "wrap teamgrid", style: { position: "relative", zIndex: 1, display: "grid", gridTemplateColumns: "1.02fr .98fr", gap: "clamp(32px,4.5vw,64px)", alignItems: "center" } },
 h("div", null,
 h(Eyebrow, { num: "// team::mt" }, "Lernen Sie uns kennen"),
 h("h1", { style: { fontFamily: "Poppins", fontWeight: 800, fontSize: "clamp(36px,5vw,72px)", lineHeight: 1.03, letterSpacing: "-.02em", textWrap: "balance", marginTop: 18 } }, "Das Team hinter ", h("span", { style: { color: "var(--accent)" } }, "Ihrem Erfolg.")),
 h("p", { className: "lead", style: { maxWidth: 520, marginTop: 20 } }, "Individuelle Stärken, kreative Lösungen und 33+ Jahre Erfahrung — gemeinsam unschlagbar."),
 h("div", { style: { display: "flex", gap: 14, flexWrap: "wrap", marginTop: 30 } },
-h("a", { className: "btn btn-cta", href: hrefFor("kontakt"), onClick: e => { e.preventDefault(); onBook(e); } }, "Kontakt aufnehmen ", h(Icon, { name: "arrow", size: 16 }))),
+h("button", { className: "btn btn-cta", onClick: onBook }, "Kontakt aufnehmen ", h(Icon, { name: "arrow", size: 16 }))),
 h("div", { style: { display: "flex", flexWrap: "wrap", gap: "clamp(22px,3vw,46px)", marginTop: "clamp(32px,4.5vw,50px)" } },
 [["33+", "Jahre Erfahrung"], ["10", "Expert:innen"], ["2", "Standorte · Rosenheim & Köln"]].map(([k, v]) => h("div", { key: v },
 h("div", { style: { fontFamily: "Poppins", fontWeight: 800, fontSize: "clamp(30px,3.6vw,50px)", lineHeight: 1, color: "var(--accent)" } }, k),
