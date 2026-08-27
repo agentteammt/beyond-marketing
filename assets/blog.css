@@ -37,6 +37,8 @@ a:hover{color:#a70724}
 .bg-nav a[aria-current="page"]::after{content:"";position:absolute;left:0;right:0;bottom:-2px;height:2px;background:var(--accent)}
 .bg-cta{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:10px;font-family:"Poppins",sans-serif;font-weight:600;font-size:14px;letter-spacing:.01em;padding:12px 22px;border-radius:2px;cursor:pointer;border:0;text-decoration:none;text-align:center;white-space:nowrap;background:var(--cta);color:var(--cta-ink);box-shadow:0 0 0 1px color-mix(in srgb,var(--cta) 60%,white 0%),0 8px 30px color-mix(in srgb,var(--cta) 45%,transparent),0 0 calc(40px*var(--glow)) color-mix(in srgb,var(--cta) 55%,transparent);transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .3s,background .3s;will-change:transform}
 .bg-cta:hover{color:#fff;box-shadow:0 0 0 1px var(--cta),0 10px 40px color-mix(in srgb,var(--cta) 60%,transparent),0 0 calc(64px*var(--glow)) color-mix(in srgb,var(--cta) 70%,transparent)}
+.bg-cta:disabled{opacity:.45;cursor:not-allowed}
+.bg-cta:disabled:hover{box-shadow:0 0 0 1px color-mix(in srgb,var(--cta) 60%,white 0%),0 8px 30px color-mix(in srgb,var(--cta) 45%,transparent),0 0 calc(40px*var(--glow)) color-mix(in srgb,var(--cta) 55%,transparent)}
 .bg-hazard{height:5px;width:100%;background-image:repeating-linear-gradient(45deg,var(--caution) 0 16px,#0b0e16 16px 32px)}
 @keyframes hazardscroll{to{background-position:64px 0}}
 @media (prefers-reduced-motion:no-preference){.bg-hazard{animation:hazardscroll 3s linear infinite}}
@@ -138,6 +140,36 @@ tbody td:first-child{color:var(--ink);font-weight:500}
 .formbox .fsub button{font-size:15px;padding:15px 26px}
 .formbox .fsub{display:flex;flex-wrap:wrap;align-items:center;gap:34px;margin-top:10px}
 .formbox .fnote{font-size:12.5px;color:var(--muted);line-height:1.5}
+
+.formbox .bb-form{margin-top:24px;display:grid;gap:14px}
+.bb-step{display:flex;align-items:center;gap:10px;font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin:0}
+.bb-step:not(:first-child){margin-top:12px}
+.bb-num{display:inline-flex;align-items:center;justify-content:center;width:19px;height:19px;border-radius:2px;background:var(--accent);color:#fff;font-size:11px;font-weight:700;letter-spacing:0;flex:none}
+.bb-chips{display:flex;gap:9px;flex-wrap:wrap}
+.bb-chip{display:flex;flex-direction:column;align-items:center;gap:1px;min-width:62px;padding:10px 12px;border:1px solid var(--line-strong);border-radius:2px;background:#fff;font-family:inherit;color:var(--ink-dim);cursor:pointer;transition:border-color .2s,color .2s,background .2s}
+.bb-chip:hover{border-color:var(--accent);color:var(--ink)}
+.bb-chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.bb-dow{font-size:10.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;opacity:.85}
+.bb-dom{font-size:19px;font-weight:700;line-height:1.12}
+.bb-mon{font-size:10.5px;opacity:.75}
+.bb-times{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.bb-times[hidden]{display:none}
+@media(max-width:520px){.bb-times{grid-template-columns:repeat(2,1fr)}}
+.bb-time{padding:12px 10px;border:1px solid var(--line-strong);border-radius:2px;background:#fff;font-family:inherit;font-size:14.5px;font-weight:500;color:var(--ink-dim);cursor:pointer;transition:border-color .2s,color .2s,background .2s}
+.bb-time:hover:not(:disabled){border-color:var(--accent);color:var(--ink)}
+.bb-time[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.bb-time:disabled{opacity:.42;cursor:not-allowed;color:var(--muted);text-decoration-line:line-through;text-decoration-color:var(--muted)}
+.bb-fallback{margin-top:22px}
+.bb-fallback p{margin:0 0 20px;font-size:16px;line-height:1.62;color:var(--ink-dim);max-width:50ch;text-wrap:pretty}
+.bb-fallback-actions{display:flex;flex-wrap:wrap;align-items:center;gap:30px}
+.bb-alt{font-size:14px;font-weight:500}
+.bb-msg{margin:0;font-size:14px;line-height:1.5;color:var(--muted)}
+.bb-msg.bb-err{color:var(--accent);font-weight:500}
+.bb-done{display:flex;flex-direction:column;align-items:flex-start;gap:15px;padding:8px 0 2px}
+.bb-check{width:44px;height:44px;border-radius:2px;background:var(--accent-2);color:#07271e;display:flex;align-items:center;justify-content:center;flex:none}
+.bb-check svg{width:24px;height:24px}
+.bb-done h3{font-size:21px}
+.bb-done p{margin:0;font-size:15.5px;line-height:1.62;color:var(--ink-dim);max-width:48ch;text-wrap:pretty}
 
 .faq{margin:52px 0 0}
 .faq h2{font-size:clamp(25px,3.1vw,33px);margin:0 0 22px;scroll-margin-top:92px}
