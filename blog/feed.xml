@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+<title>Beyond Marketing Blog — team::mt</title>
+<link>https://beyond-marketing.team-mt.de/blog</link>
+<atom:link href="https://beyond-marketing.team-mt.de/blog/feed.xml" rel="self" type="application/rss+xml" />
+<description>Fachbeiträge zu KI im B2B-Marketing: GEO, SEO mit KI, Marketing Automation, Content und KI-Strategie.</description>
+<language>de-DE</language>
+<lastBuildDate>Tue, 18 Aug 2026 09:00:00 GMT</lastBuildDate>
+<item>
+<title>Generative Engine Optimization (GEO): Wie B2B-Unternehmen 2026 in KI-Antworten sichtbar werden</title>
+<link>https://beyond-marketing.team-mt.de/blog/generative-engine-optimization-geo</link>
+<guid isPermaLink="true">https://beyond-marketing.team-mt.de/blog/generative-engine-optimization-geo</guid>
+<pubDate>Tue, 18 Aug 2026 09:00:00 GMT</pubDate>
+<category>GEO &amp; KI-Sichtbarkeit</category>
+<description>GEO erklärt: Wie B2B-Unternehmen 2026 in ChatGPT, Perplexity und Google AI Overviews zitiert werden. Mit Methode, Tools und klarer Erfolgsmessung.</description>
+</item>
+<item>
+<title>ChatGPT Werbung: Was ChatGPT Ads für Ihr Marketing bedeuten und wie Sie sich 2026 vorbereiten</title>
+<link>https://beyond-marketing.team-mt.de/blog/chatgpt-werbung</link>
+<guid isPermaLink="true">https://beyond-marketing.team-mt.de/blog/chatgpt-werbung</guid>
+<pubDate>Tue, 11 Aug 2026 09:00:00 GMT</pubDate>
+<category>ChatGPT &amp; Paid</category>
+<description>ChatGPT Werbung erklärt: Was ChatGPT Ads sind, wie ChatGPT Marketing funktioniert und wie sich B2B-Unternehmen jetzt darauf vorbereiten.</description>
+</item>
+<item>
+<title>KI-Strategie entwickeln: Der 360-Grad-Fahrplan für messbares Marketing</title>
+<link>https://beyond-marketing.team-mt.de/blog/ki-strategie-entwickeln</link>
+<guid isPermaLink="true">https://beyond-marketing.team-mt.de/blog/ki-strategie-entwickeln</guid>
+<pubDate>Tue, 04 Aug 2026 09:00:00 GMT</pubDate>
+<category>KI-Strategie</category>
+<description>So entwickeln Unternehmen eine KI-Strategie fürs Marketing: von Audit über Roadmap bis zur messbaren Umsetzung. Praxisnaher 360-Grad-Fahrplan in fünf Phasen.</description>
+</item>
+<item>
+<title>SEO mit KI: Schneller zu besseren Rankings ohne Qualitätsverlust</title>
+<link>https://beyond-marketing.team-mt.de/blog/seo-mit-ki</link>
+<guid isPermaLink="true">https://beyond-marketing.team-mt.de/blog/seo-mit-ki</guid>
+<pubDate>Tue, 28 Jul 2026 09:00:00 GMT</pubDate>
+<category>SEO</category>
+<description>Wie Sie KI im SEO-Prozess einsetzen, von der Keyword-Analyse bis zum Content, und Rankings steigern, ohne Qualität zu verlieren. Mit Prozess und Fallstricken.</description>
+</item>
+<item>
+<title>Marketing Automation im B2B: Mehr Wirkung mit demselben Team</title>
+<link>https://beyond-marketing.team-mt.de/blog/marketing-automation-b2b</link>
+<guid isPermaLink="true">https://beyond-marketing.team-mt.de/blog/marketing-automation-b2b</guid>
+<pubDate>Tue, 21 Jul 2026 09:00:00 GMT</pubDate>
+<category>Marketing Automation</category>
+<description>Was Marketing Automation im B2B leistet, welche Prozesse sich lohnen und wie Sie starten, ohne Ihr Team zu überlasten. Mit Use-Cases und Fahrplan.</description>
+</item>
+<item>
+<title>Content mit KI erstellen: Hochwertig, markenkonform, in Stunden statt Wochen</title>
+<link>https://beyond-marketing.team-mt.de/blog/content-mit-ki-erstellen</link>
+<guid isPermaLink="true">https://beyond-marketing.team-mt.de/blog/content-mit-ki-erstellen</guid>
+<pubDate>Tue, 14 Jul 2026 09:00:00 GMT</pubDate>
+<category>Content &amp; KI</category>
+<description>So erstellen Sie mit KI hochwertigen, markenkonformen Content in Stunden statt Wochen. Mit erprobtem Prozess, Qualitätscheck und typischen Fallstricken.</description>
+</item>
+</channel>
+</rss>

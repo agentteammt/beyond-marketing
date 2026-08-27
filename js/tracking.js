@@ -77,7 +77,7 @@ var THRESHOLDS = [
 [75, "Beyond_Scroll_75"],
 [90, "Beyond_Scroll_90"]
 ];
-function routeKey() { return ((location.pathname || "") + (location.hash || "")).replace(/[^a-z]/gi, "") || "home"; }
+function routeKey() { return (location.hash || "home").replace(/[^a-z]/gi, "") || "home"; }
 function checkScroll() {
 var doc = document.documentElement;
 var max = (doc.scrollHeight || 0) - window.innerHeight;
@@ -87,7 +87,7 @@ for (var i = 0; i < THRESHOLDS.length; i++) {
 if (pct >= THRESHOLDS[i][0] && once(THRESHOLDS[i][1] + "_" + routeKey())) {
 send(THRESHOLDS[i][1], {
 percent_scrolled: THRESHOLDS[i][0],
-page_route: (location.pathname || "/") + (location.hash || "")
+page_route: location.hash || "#/"
 });
 }
 }

@@ -1,0 +1,35 @@
+# team::mt — Beyond Marketing
+
+> KI-Marketing-Agentur für B2B aus Rosenheim und Köln. Seit 1993. Macht Marketing-Abteilungen
+> im Mittelstand KI-fähig: Sichtbarkeit in generativer Suche (GEO), SEO, LinkedIn,
+> KI-Landingpages und Marketing-Automatisierung.
+
+Betreiber: team::mt gmbh, Münchener Straße 1, 83022 Rosenheim, Deutschland · team@team-mt.de
+Zweite Adresse: Eupener Str. 159, 50933 Köln
+Sprache der Inhalte: Deutsch
+
+## Leistungen
+- [KI-Audit](https://beyond-marketing.team-mt.de/#leistung-01): Standortbestimmung, wo KI im Marketing den größten Hebel hat.
+- [GEO-Check](https://beyond-marketing.team-mt.de/#leistung-02): Messung der Sichtbarkeit in KI-Antworten (ChatGPT, Perplexity, Google AI Overviews).
+- [LinkedIn-Check](https://beyond-marketing.team-mt.de/#leistung-03): Analyse und Ausbau der LinkedIn-Präsenz im B2B.
+- [KI-Landingpages](https://beyond-marketing.team-mt.de/#leistung-04): Landingpages, die aus Suchintention Anfragen machen.
+- [Social-Automatisierung](https://beyond-marketing.team-mt.de/#leistung-05): Always-on-Strecken für Social Media und Leads.
+
+## Seiten
+- [Startseite](https://beyond-marketing.team-mt.de/): Überblick, Leistungen, Pakete, Erstgespräch.
+- [Ansatz](https://beyond-marketing.team-mt.de/#/ansatz): Beyond Marketing — 360-Grad-Sicht statt Einzelkanäle.
+- [Leistungen](https://beyond-marketing.team-mt.de/#/leistungen): die fünf Bausteine im Detail.
+- [Team](https://beyond-marketing.team-mt.de/#/team): Expertenteam, Geschäftsführung Martina Manich.
+
+## Blog
+- [Generative Engine Optimization (GEO)](https://beyond-marketing.team-mt.de/blog/generative-engine-optimization-geo): Was GEO ist, wie es sich von SEO unterscheidet, fünf Hebel für Sichtbarkeit in KI-Antworten, KI-Sichtbarkeit messen.
+- [SEO mit KI](https://beyond-marketing.team-mt.de/blog/seo-mit-ki): KI im SEO-Prozess von Keyword-Recherche bis technisches Audit, inklusive Grenzen.
+- [Marketing Automation im B2B](https://beyond-marketing.team-mt.de/blog/marketing-automation-b2b): Welche Prozesse sich automatisieren lassen und wie man startet.
+- [Content mit KI erstellen](https://beyond-marketing.team-mt.de/blog/content-mit-ki-erstellen): Prozess und Qualitätssicherung für markenkonformen KI-Content.
+- [KI-Strategie entwickeln](https://beyond-marketing.team-mt.de/blog/ki-strategie-entwickeln): 360-Grad-Fahrplan in fünf Phasen, von Audit bis messbare Umsetzung.
+- [ChatGPT Werbung & ChatGPT Ads](https://beyond-marketing.team-mt.de/blog/chatgpt-werbung): Was bezahlte Werbung in ChatGPT bedeutet und wie man sich vorbereitet.
+- [Alle Beiträge](https://beyond-marketing.team-mt.de/blog) · [RSS](https://beyond-marketing.team-mt.de/blog/feed.xml)
+
+## Rechtliches
+- [Impressum](https://beyond-marketing.team-mt.de/impressum)
+- [Datenschutzerklärung](https://beyond-marketing.team-mt.de/datenschutz)

@@ -1,8 +1,11 @@
 (function () {
 "use strict";
-var STORE_KEY = "kiw-consent-v1";
+var STORE_KEY = "kiw-consent-v2";
 var GA_ID = (window.KIW_GA_ID || "").trim();
 var GA_VALID = /^G-[A-Z0-9]{6,}$/i.test(GA_ID);
+var ADS = window.KIW_ADS || {};
+var ADS_ID = (ADS.id || "").trim();
+var ADS_VALID = /^AW-[0-9A-Za-z]+$/.test(ADS_ID);
 function load() {
 try {
 var raw = localStorage.getItem(STORE_KEY);
@@ -18,7 +21,7 @@ state.v = 1;
 try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {}
 apply(state);
 }
-var gaLoaded = false;
+var gtagLibLoaded = false, gaConfigured = false, adsConfigured = false;
 function bootGtagConsentDefault() {
 window.dataLayer = window.dataLayer || [];
 window.gtag = window.gtag || function () { window.dataLayer.push(arguments); };
@@ -30,27 +33,40 @@ analytics_storage: "denied",
 wait_for_update: 500
 });
 }
-function loadGA() {
-if (gaLoaded || !GA_VALID) return;
-gaLoaded = true;
+function ensureGtagLib(anyId) {
+if (gtagLibLoaded || !anyId) return;
+gtagLibLoaded = true;
 var s = document.createElement("script");
 s.async = true;
-s.src = "https://www.googletagmanager.com/gtag/js?id=" + encodeURIComponent(GA_ID);
+s.src = "https://www.googletagmanager.com/gtag/js?id=" + encodeURIComponent(anyId);
 document.head.appendChild(s);
 window.gtag("js", new Date());
+}
+function loadGA() {
+if (gaConfigured || !GA_VALID) return;
+gaConfigured = true;
+ensureGtagLib(GA_ID);
 window.gtag("config", GA_ID, { anonymize_ip: true });
 }
+function loadAds() {
+if (adsConfigured || !ADS_VALID) return;
+adsConfigured = true;
+ensureGtagLib(GA_VALID ? GA_ID : ADS_ID);
+window.gtag("config", ADS_ID);
+}
 function apply(state) {
-var granted = !!(state && state.analytics);
+var analytics = !!(state && state.analytics);
+var marketing = !!(state && state.marketing);
 if (window.gtag) {
 window.gtag("consent", "update", {
-analytics_storage: granted ? "granted" : "denied",
-ad_storage: "denied",
-ad_user_data: "denied",
-ad_personalization: "denied"
+analytics_storage: analytics ? "granted" : "denied",
+ad_storage: marketing ? "granted" : "denied",
+ad_user_data: marketing ? "granted" : "denied",
+ad_personalization: marketing ? "granted" : "denied"
 });
 }
-if (granted) loadGA();
+if (analytics) loadGA();
+if (marketing) loadAds();
 }
 function el(tag, attrs, kids) {
 var n = document.createElement(tag);
@@ -135,8 +151,9 @@ el("div", { class: "cc-eyebrow" }, ["Cookie-Einstellungen"]),
 el("p", { class: "cc-title" }, ["Wir respektieren Ihre Privatsphäre"]),
 el("p", { class: "cc-text", html:
 'Wir verwenden nur technisch notwendige Cookies, damit diese Seite funktioniert. ' +
-'Optionale Statistik-Cookies (Google&nbsp;Analytics) setzen wir nur mit Ihrer Einwilligung ein. ' +
-'Details in unserer <a href="datenschutz.html">Datenschutzerklärung</a>.' })
+'Optionale Statistik-Cookies (Google&nbsp;Analytics) und Marketing-Cookies (Google&nbsp;Ads) ' +
+'setzen wir nur mit Ihrer Einwilligung ein. ' +
+'Details in unserer <a href="/datenschutz">Datenschutzerklärung</a>.' })
 ]),
 el("div", { class: "cc-actions" }, [
 mkBtn("cc-btn cc-accept", "Alle akzeptieren", function () { acceptAll(); }),
@@ -156,12 +173,12 @@ var b = el("button", { class: cls, type: "button" }, [label]);
 b.addEventListener("click", fn);
 return b;
 }
-function acceptAll() { save({ necessary: true, analytics: true }); hideBanner(); }
-function rejectAll() { save({ necessary: true, analytics: false }); hideBanner(); }
+function acceptAll() { save({ necessary: true, analytics: true, marketing: true }); hideBanner(); }
+function rejectAll() { save({ necessary: true, analytics: false, marketing: false }); hideBanner(); }
 var overlayEl = null;
 function openSettings() {
 var state = load() || { necessary: true, analytics: false };
-var draft = { analytics: !!state.analytics };
+var draft = { analytics: !!state.analytics, marketing: !!state.marketing };
 var analyticsSwitch = el("div", {
 class: "cc-switch" + (draft.analytics ? " on" : ""),
 role: "switch", tabindex: "0", "aria-checked": draft.analytics ? "true" : "false",
@@ -176,6 +193,20 @@ analyticsSwitch.addEventListener("click", toggleAnalytics);
 analyticsSwitch.addEventListener("keydown", function (e) {
 if (e.key === " " || e.key === "Enter") { e.preventDefault(); toggleAnalytics(); }
 });
+var marketingSwitch = el("div", {
+class: "cc-switch" + (draft.marketing ? " on" : ""),
+role: "switch", tabindex: "0", "aria-checked": draft.marketing ? "true" : "false",
+"aria-label": "Marketing-Cookies"
+}, [el("div", { class: "cc-knob" })]);
+function toggleMarketing() {
+draft.marketing = !draft.marketing;
+marketingSwitch.classList.toggle("on", draft.marketing);
+marketingSwitch.setAttribute("aria-checked", draft.marketing ? "true" : "false");
+}
+marketingSwitch.addEventListener("click", toggleMarketing);
+marketingSwitch.addEventListener("keydown", function (e) {
+if (e.key === " " || e.key === "Enter") { e.preventDefault(); toggleMarketing(); }
+});
 var modal = el("div", { class: "cc-modal cc-root" }, [
 el("div", { class: "cc-hazard" }),
 el("div", { class: "cc-modal-body" }, [
@@ -183,7 +214,7 @@ el("h2", {}, ["Cookie-Einstellungen"]),
 el("p", { class: "cc-lead", html:
 'Entscheiden Sie selbst, welche Cookies wir verwenden dürfen. Ihre Auswahl können Sie ' +
 'jederzeit über „Cookie-Einstellungen" im Footer ändern. Mehr in der ' +
-'<a href="datenschutz.html">Datenschutzerklärung</a>.' }),
+'<a href="/datenschutz">Datenschutzerklärung</a>.' }),
 el("div", { class: "cc-cat" }, [
 el("div", { class: "cc-cat-info" }, [
 el("p", { class: "cc-cat-name" }, ["Technisch notwendig"]),
@@ -202,9 +233,18 @@ el("p", { class: "cc-cat-desc" }, [
 ]),
 analyticsSwitch
 ]),
+el("div", { class: "cc-cat" }, [
+el("div", { class: "cc-cat-info" }, [
+el("p", { class: "cc-cat-name" }, ["Marketing"]),
+el("p", { class: "cc-cat-desc" }, [
+"Google Ads misst anonymisiert, welche Anzeige zu einer Anfrage geführt hat (Conversion-Tracking). Wird erst nach Ihrer Einwilligung geladen."
+])
+]),
+marketingSwitch
+]),
 el("div", { class: "cc-modal-actions" }, [
 mkBtn("cc-btn cc-accept", "Auswahl speichern", function () {
-save({ necessary: true, analytics: draft.analytics });
+save({ necessary: true, analytics: draft.analytics, marketing: draft.marketing });
 closeSettings(); hideBanner();
 }),
 mkBtn("cc-btn cc-reject", "Alle akzeptieren", function () {
@@ -231,8 +271,8 @@ var row = el("div", {
 class: "cc-foot-links cc-root",
 style: "display:flex;gap:18px;flex-wrap:wrap;align-items:center;padding-top:18px;margin-top:6px;border-top:1px solid rgba(140,180,220,.14);"
 }, [
-el("a", { href: "impressum.html" }, ["Impressum"]),
-el("a", { href: "datenschutz.html" }, ["Datenschutz"])
+el("a", { href: "/impressum" }, ["Impressum"]),
+el("a", { href: "/datenschutz" }, ["Datenschutz"])
 ]);
 var cookieBtn = el("button", { type: "button" }, ["Cookie-Einstellungen"]);
 cookieBtn.addEventListener("click", openSettings);
