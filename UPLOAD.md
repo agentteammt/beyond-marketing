@@ -1,6 +1,6 @@
 # GitHub-Upload — was in dieses Paket gehört und was sich geändert hat
 
-Dieser Ordner ist die **vollständige, deploybare Website**. Alle 114 Dateien
+Dieser Ordner ist die **vollständige, deploybare Website**. Alle Dateien
 gehören ins Repository-Root. Jede lokale Referenz in allen zehn HTML-Seiten ist
 geprüft und auflösbar — es fehlt nichts.
 
@@ -29,7 +29,7 @@ git push
 
 ## Variante B — nur die Änderungen committen
 
-### Neu (14 Dateien)
+### Neu (15 Dateien)
 
 ```
 blog/index.html
@@ -43,6 +43,7 @@ blog/feed.xml
 assets/blog.css
 assets/blog/chatgpt-werbung.png
 assets/blog/content-mit-ki.png
+js/blog-booking.js
 llms.txt
 BLOG-ANLEITUNG.md
 SEO-GEO-AUDIT.md
@@ -55,6 +56,8 @@ SEO-GEO-AUDIT.md
 | `js/app.js` | „Blog" in Header-Navigation, Mobil-Menü (als Punkt 04) und Footer-Navigation |
 | `js/legal.js` | Impressum- und Datenschutz-Links root-absolut (`/impressum`, `/datenschutz`) — vorher relativ, damit aus `/blog/` heraus 404 |
 | `index.html` | Cache-Buster: `js/app.js?v=88`, `js/legal.js?v=4` |
+| `assets/blog.css` | Blog-Stylesheet, aktuell als `?v=10` eingebunden |
+| `js/blog-booking.js` | **neu** — Erstgespräch-Buchung auf den Blogseiten, nutzt dieselbe `window.KIWBooking`-API (Supabase) wie das Hauptformular |
 | `sitemap.xml` | 3 → 9 URLs (Blog-Hub plus sechs Beiträge) |
 | `robots.txt` | GPTBot, ChatGPT-User, OAI-SearchBot, PerplexityBot, ClaudeBot, Google-Extended ausdrücklich erlaubt; Sitemap-Verweis unverändert |
 
