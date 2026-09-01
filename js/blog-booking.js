@@ -57,7 +57,7 @@
       el("p", { text: lead }),
       el("div", { class: "bb-fallback-actions" }, [
         el("a", { class: "bg-cta", href: "mailto:" + MAIL + "?subject=Anfrage%20Erstgespr%C3%A4ch" }, ["E-Mail schreiben"]),
-        el("a", { class: "bb-alt", href: "/#kontakt" }, ["Termin auf der Startseite wählen"])
+        el("a", { class: "bb-alt", href: "/kontakt" }, ["Termin auf der Startseite wählen"])
       ])
     ]);
   }

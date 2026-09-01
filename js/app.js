@@ -62,10 +62,7 @@ behavior: PRM() ? "auto" : "smooth"
 }
 const h = React.createElement;
 const H_PANELS = ["ansatz", "loesung"];
-function hrefFor(id) {
-var m = (location.hash || "").toLowerCase().match(/^#\/(ansatz|leistungen|team)\b/);
-return m ? "#/" + m[1] + "/" + id : "#" + id;
-}
+function hrefFor(id) { return "#" + id; }
 function setUrlHash(id) { try { history.replaceState(null, "", hrefFor(id)); } catch (e) {} }
 function scrollToId(id) {
 const reg = window.__revealTargets && window.__revealTargets[id];
@@ -94,6 +91,8 @@ if (el) { setUrlHash(id); smoothScrollTo(el.getBoundingClientRect().top + window
 }
 try { window.__scrollToId = scrollToId; } catch (e) {}
 function getRoute() {
+var seg = (location.pathname || "/").split("/").pop().toLowerCase().replace(/\.html$/, "");
+if (seg === "ansatz" || seg === "leistungen" || seg === "team" || seg === "kontakt") return seg;
 var m = (location.hash || "").toLowerCase().match(/^#\/(ansatz|leistungen|team)\b/);
 return m ? m[1] : "home";
 }
@@ -135,7 +134,7 @@ boxShadow: solid ? "0 1px 0 var(--line)" : "none"
 className: "wrap",
 style: { display: "flex", alignItems: "center", justifyContent: "flex-start", height: 64, gap: 20 }
 }, h("a", {
-href: "#/",
+href: "/",
 onClick: e => { if (route === "home") { e.preventDefault(); smoothScrollTo(0); } },
 style: { display: "flex", alignItems: "center", gap: 11, marginRight: "auto" }
 }, h("img", {
@@ -144,7 +143,7 @@ src: "assets/logo-wordmark.jpg", alt: "team::mt – KI Marketing Agentur für B2
 className: "topnav",
 style: { display: "flex", alignItems: "center", gap: 34.5, marginRight: 30, fontFamily: "Poppins", fontSize: 14, fontWeight: 500, color: "var(--ink-dim)" }
 }, [["Ansatz", "ansatz"], ["Leistungen", "leistungen"], ["Team", "team"]].map(([label, id]) => { const active = route === id; return h("a", {
-key: id, href: "#/" + id,
+key: id, href: "/" + id,
 className: "beyond-track-nav-link", "data-beyond-event": "Beyond_Nav_Link_" + id,
 style: { transition: "color .2s", color: active ? "var(--accent)" : "var(--ink-dim)", fontWeight: active ? 600 : 500 },
 onMouseEnter: e => e.currentTarget.style.color = "var(--accent)",
@@ -178,7 +177,7 @@ h("nav", { style: { display: "flex", flexDirection: "column" } },
 const active = route === id;
 const dl = menuOpen ? (0.14 + i * 0.08) : 0;
 return h("a", {
-key: id, href: "#/" + id, className: "beyond-track-nav-link", "data-beyond-event": "Beyond_Nav_Link_" + id, onClick: () => setMenuOpen(false),
+key: id, href: "/" + id, className: "beyond-track-nav-link", "data-beyond-event": "Beyond_Nav_Link_" + id, onClick: () => setMenuOpen(false),
 style: { display: "flex", alignItems: "baseline", gap: 16, fontFamily: "Poppins", fontWeight: 700, fontSize: "clamp(34px,11vw,56px)", letterSpacing: "-.02em", lineHeight: 1.06, color: active ? "var(--accent)" : "var(--ink)", textDecoration: "none", padding: "14px 0", borderBottom: "1px solid var(--line)", opacity: menuOpen ? 1 : 0, transform: menuOpen ? "translateY(0)" : "translateY(30px)", transition: "opacity .5s cubic-bezier(.2,.8,.2,1) " + dl + "s, transform .62s cubic-bezier(.2,.8,.2,1) " + dl + "s" },
 onMouseEnter: e => e.currentTarget.style.color = "var(--accent)",
 onMouseLeave: e => e.currentTarget.style.color = active ? "var(--accent)" : "var(--ink)"
@@ -2836,6 +2835,33 @@ h("ul", { style: { listStyle: "none", padding: 0, margin: 0, display: "grid", ga
 h("span", { style: { width: 38, height: 38, flex: "none", borderRadius: 2, display: "grid", placeItems: "center", color: "var(--accent)", boxShadow: "inset 0 0 0 1px var(--line-strong)" } }, h(Icon, { name: ic, size: 18 })), tx)))),
 h(Reveal, { delay: 120 }, h(ErstgesprachBooking, null))), h("div", { className: "wrap", style: { marginTop: "clamp(6px,1.5vw,16px)" } }, h(TeamMarquee, null)));
 }
+function KontaktHero() {
+return h("section", { className: "grid-bg", style: { paddingTop: "clamp(120px,15vw,170px)", paddingBottom: "clamp(10px,2vw,26px)" } },
+h("div", { className: "wrap", style: { position: "relative", zIndex: 1 } },
+h(Reveal, null,
+h(Eyebrow, { num: "// Kontakt" }, "Sprechen wir über Ihr Marketing"),
+h("h1", { style: { fontSize: "clamp(38px,6vw,76px)", lineHeight: 1.0, letterSpacing: "-.02em", marginTop: 16, maxWidth: 820, textWrap: "balance" } }, "Kontakt ", h("span", { style: { color: "var(--accent)" } }, "aufnehmen.")),
+h("p", { className: "lead", style: { marginTop: 22, maxWidth: 560 } }, "Ob Erstgespräch, KI-Audit oder eine konkrete Frage — buchen Sie direkt einen Termin oder erreichen Sie uns in Rosenheim und Köln.")),
+h("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(230px,1fr))", gap: 18, marginTop: "clamp(30px,4vw,46px)" } },
+[["Büro Rosenheim", "Münchener Straße 1\n83022 Rosenheim", "tel:+49892000216-0", "+49 89 2000216-0"], ["Büro Köln", "Eupener Str. 159\n50933 Köln", "tel:+49221669429-0", "+49 221 669429-0"], ["E-Mail", "Wir antworten in der Regel\ninnerhalb eines Werktags.", "mailto:team@team-mt.de", "team@team-mt.de"]].map(([t, body, href, lbl]) => h(Reveal, { key: t },
+h("div", { style: { padding: "22px 24px", borderRadius: 4, background: "var(--glass)", boxShadow: "inset 0 0 0 1px var(--glass-line)", height: "100%", display: "flex", flexDirection: "column", gap: 8 } },
+h("div", { style: { fontFamily: "Poppins", fontWeight: 600, fontSize: 12, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--accent)" } }, t),
+h("div", { style: { whiteSpace: "pre-line", color: "var(--ink-dim)", fontSize: 14.5, lineHeight: 1.5 } }, body),
+h("a", { href: href, style: { fontFamily: "Poppins", fontWeight: 600, fontSize: 15, color: "var(--ink)", marginTop: "auto" } }, lbl)))))));
+}
+function KontaktAblauf() {
+return h("section", { id: "ablauf-kontakt", className: "sec-pad grid-bg", style: { paddingTop: "clamp(50px,7vw,90px)" } },
+h("div", { className: "wrap", style: { position: "relative", zIndex: 1, display: "grid", gridTemplateColumns: "0.85fr 1.15fr", gap: "clamp(32px,6vw,90px)" } },
+h("div", { className: "ablaufhead" },
+h(Reveal, null,
+h(Eyebrow, { num: "// Ablauf" }, "Was Sie erwartet"),
+h("h2", { style: { fontSize: "clamp(30px,4.2vw,52px)", marginBottom: 22, textWrap: "balance" } }, "30 Minuten. Eine ehrliche Einschätzung. Kein Pitch."),
+h("p", { className: "lead", style: { color: "var(--ink-dim)", fontSize: 16, marginBottom: 30 } }, "Wir arbeiten an Ihrem echten Material — Website, LinkedIn, Sichtbarkeit. Sie gehen mit Erkenntnissen, nicht mit einem Flyer."))),
+h("div", null,
+h(StepRow, { num: "1", icon: "cal", title: "Termin wählen", body: "Sie buchen direkt hier einen 30-Minuten-Slot — ohne Formular-Pingpong, ohne Verpflichtung." }),
+h(StepRow, { num: "2", icon: "scan", title: "Erstgespräch", body: "Sie schildern Ziele und Status quo, wir schauen gemeinsam live auf Ihre Kanäle und zeigen, wo KI sofort wirkt." }),
+h(StepRow, { num: "3", icon: "chart", title: "Konkrete nächste Schritte", body: "Sie erhalten eine priorisierte Empfehlung, was sich für Ihr Marketing rechnet — konkret, ehrlich, ohne Verkaufsgespräch.", last: true }))));
+}
 function GumballScrollSection() {
 /* Scrub-Videos werden als Blob geladen, sobald die Sektion in die Nähe kommt —
    nötig, weil manche Server/Umgebungen kein natives Video-Seeking erlauben
@@ -2977,7 +3003,7 @@ h("p", { style: { color: "var(--muted)", fontSize: 14, maxWidth: 320, margin: 0 
 h("a", { href: "https://www.team-mt.de", target: "_blank", rel: "noopener noreferrer", style: { display: "inline-flex", alignItems: "center", gap: 7, marginTop: 16, fontFamily: "Poppins", fontWeight: 600, fontSize: 14, color: "var(--ink)", transition: "color .2s" }, onMouseEnter: e => e.currentTarget.style.color = "var(--accent)", onMouseLeave: e => e.currentTarget.style.color = "var(--ink)" }, "Die ganze Agentur: team-mt.de ", h(Icon, { name: "arrow", size: 14 }))),
 h("div", null,
 h("div", { style: tmtFHead }, "Navigation"),
-[["Startseite", "#/"], ["Ansatz", "#/ansatz"], ["Leistungen", "#/leistungen"], ["Team", "#/team"], ["Blog", "/blog"]].map(([l, href]) => h("a", { key: href, href: href, style: { display: "block", color: "var(--ink-dim)", fontSize: 14.5, marginBottom: 12 } }, l))),
+[["Startseite", "/"], ["Ansatz", "/ansatz"], ["Leistungen", "/leistungen"], ["Team", "/team"], ["Blog", "/blog"], ["Kontakt", "/kontakt"]].map(([l, href]) => h("a", { key: href, href: href, style: { display: "block", color: "var(--ink-dim)", fontSize: 14.5, marginBottom: 12 } }, l))),
 h("div", null,
 h("div", { style: tmtFHead }, "Kontakt"),
 h("p", { style: { color: "var(--ink-dim)", fontSize: 14, marginTop: 0, marginBottom: 18 } }, "Lassen Sie uns über Ihr Marketing sprechen."),
@@ -3232,11 +3258,12 @@ el.focus();
 }, 650);
 }, []);
 const route = getRoute();
-if (route === "ansatz" || route === "leistungen" || route === "team") {
+if (route === "ansatz" || route === "leistungen" || route === "team" || route === "kontakt") {
 const subs = {
-ansatz: [h(AnsatzHero, { key: "ah" }), h(ScanCut, { key: "s0" }), h(GlassRing360, { key: "g", onBook: goBook, leistungenHref: "#/leistungen" }), h(ScanCut, { key: "s1" }), h(SoArbeitenWir, { key: "p" }), h(ScanCut, { key: "s2" }), h(BookingSection, { key: "b" })],
+ansatz: [h(AnsatzHero, { key: "ah" }), h(ScanCut, { key: "s0" }), h(GlassRing360, { key: "g", onBook: goBook, leistungenHref: "/leistungen" }), h(ScanCut, { key: "s1" }), h(SoArbeitenWir, { key: "p" }), h(ScanCut, { key: "s2" }), h(BookingSection, { key: "b" })],
 leistungen: [h(LeistungsIndex, { key: "li" }), h(LeistungenSection, { key: "ls", onBook: goBook }), h(ScanCut, { key: "s1" }), h(DreiPaketeSection, { key: "pk", onBook: goBook }), h(ScanCut, { key: "s2" }), h(BookingSection, { key: "b" })],
-team: [h(TeamSeite, { key: "tm", onBook: goBook }), h(ScanCut, { key: "s2" }), h(HerkunftSection, { key: "hk" }), h(ScanCut, { key: "s3" }), h(BookingSection, { key: "b" })]
+team: [h(TeamSeite, { key: "tm", onBook: goBook }), h(ScanCut, { key: "s2" }), h(HerkunftSection, { key: "hk" }), h(ScanCut, { key: "s3" }), h(BookingSection, { key: "b" })],
+kontakt: [h(KontaktHero, { key: "kh" }), h(BookingSection, { key: "b" }), h(ScanCut, { key: "s1" }), h(KontaktAblauf, { key: "ka" })]
 };
 const sub = subs[route];
 return h(React.Fragment, null,

@@ -17,9 +17,10 @@ Sprache der Inhalte: Deutsch
 
 ## Seiten
 - [Startseite](https://beyond-marketing.team-mt.de/): Überblick, Leistungen, Pakete, Erstgespräch.
-- [Ansatz](https://beyond-marketing.team-mt.de/#/ansatz): Beyond Marketing — 360-Grad-Sicht statt Einzelkanäle.
-- [Leistungen](https://beyond-marketing.team-mt.de/#/leistungen): die fünf Bausteine im Detail.
-- [Team](https://beyond-marketing.team-mt.de/#/team): Expertenteam, Geschäftsführung Martina Manich.
+- [Ansatz](https://beyond-marketing.team-mt.de/ansatz): Beyond Marketing — 360-Grad-Sicht statt Einzelkanäle.
+- [Leistungen](https://beyond-marketing.team-mt.de/leistungen): die fünf Bausteine im Detail.
+- [Team](https://beyond-marketing.team-mt.de/team): Expertenteam, Geschäftsführung Martina Manich.
+- [Kontakt](https://beyond-marketing.team-mt.de/kontakt): Erstgespräch buchen, Büros Rosenheim & Köln.
 
 ## Blog
 - [Generative Engine Optimization (GEO)](https://beyond-marketing.team-mt.de/blog/generative-engine-optimization-geo): Was GEO ist, wie es sich von SEO unterscheidet, fünf Hebel für Sichtbarkeit in KI-Antworten, KI-Sichtbarkeit messen.
