@@ -40,20 +40,20 @@ Meta-Description, URL-Slug, Ziel-Keyword, Sprungmarken, CTA-Labels).
 - **Beitrag → Beitrag:** je drei „Weiterlesen"-Karten plus die erste Nennung
   eines Fachbegriffs im Text (`GEO`, `SEO mit KI`, `Marketing Automation`,
   `KI-Strategie`, `ChatGPT Werbung`, `Content mit KI`).
-- **Beitrag → Leistung:** die Briefing-Sprungmarken sind auf die echten Anker
-  der Live-Seite gemappt:
+- **Beitrag → Leistung:** die Briefing-Sprungmarken sind auf die echten
+  Seiten/Anker gemappt (seit 09/2026 echte Pfade statt Hash-Routen):
 
 | Briefing | echte URL |
 | --- | --- |
-| `#geo-check` | `/#leistung-02` |
-| `#ki-audit` | `/#leistung-01` |
-| `#linkedin` | `/#leistung-03` |
-| `#landingpages` | `/#leistung-04` |
-| `#automatisierung` | `/#leistung-05` |
-| `#seo` | `/#leistungen` |
-| `#team` | `/#/team` |
-| `#ansatz` | `/#/ansatz` |
-| `#kontakt` | `/#kontakt` |
+| `#geo-check` | `/leistungen#leistung-02` |
+| `#ki-audit` | `/leistungen#leistung-01` |
+| `#linkedin` | `/leistungen#leistung-03` |
+| `#landingpages` | `/leistungen#leistung-04` |
+| `#automatisierung` | `/leistungen#leistung-05` |
+| `#seo` | `/leistungen` |
+| `#team` | `/team` |
+| `#ansatz` | `/ansatz` |
+| `#kontakt` | `/kontakt` |
 
 - **Startseite → Blog:** „Blog" in Hauptnavigation, Mobil-Menü und Footer
   (`js/app.js`).
