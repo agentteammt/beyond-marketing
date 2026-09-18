@@ -29,3 +29,12 @@
     }
   ]
 }
+{
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "destination": "https://www.team-mt.de/beyond-marketing/$1",
+      "permanent": true
+    }
+  ]
+}
