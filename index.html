@@ -3,17 +3,34 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<!-- Base-Pfad-Bootstrap: relative Asset-Pfade auch unter /beyond-marketing korrekt auflösen -->
+<script>
+(function () {
+  var PREFIX = '/beyond-marketing';
+  var DIR = PREFIX + '/';
+  var p = location.pathname;
+  if (p !== PREFIX && p.indexOf(PREFIX + '/') !== 0) return;
+  /* Nur die ohne Schluss-Slash ausgelieferte Verzeichnis-Startseite braucht die Basis. Unterseiten
+     (/beyond-marketing/ansatz, /beyond-marketing/blog/<slug>) lösen relativ bereits korrekt auf – ein base-Element
+     würde dort Sprungmarken (#anker) und history.replaceState('#…') auf die Startseite umbiegen. */
+  if (p + '/' !== DIR) return;
+  var base = document.createElement('base');
+  base.href = DIR;
+  document.head.appendChild(base);
+  try { history.replaceState(null, '', DIR + location.search + location.hash); } catch (e) {}
+})();
+</script>
 <script>
 /* Alte Hash-Routen auf echte Pfade umleiten: /#/ansatz[/anker] -> /ansatz#anker */
-(function(){var m=location.hash.match(/^#\/(ansatz|leistungen|team)(?:\/([a-z0-9\-]+))?\/?$/i);if(m){location.replace("/"+m[1].toLowerCase()+(m[2]?"#"+m[2].toLowerCase():""));}})();
+(function(){var m=location.hash.match(/^#\/(ansatz|leistungen|team)(?:\/([a-z0-9\-]+))?\/?$/i);if(m){location.replace("/beyond-marketing/"+m[1].toLowerCase()+(m[2]?"#"+m[2].toLowerCase():""));}})();
 </script>
 <title>KI Marketing Agentur: B2B Beyond Marketing</title>
 <meta name="description" content="KI Marketing Agentur für B2B: team::mt macht Ihr Marketing KI-fähig – GEO, LinkedIn & Automatisierung. 33 Jahre Erfahrung. Jetzt Erstgespräch sichern." />
 <meta property="og:type" content="website" />
-<meta property="og:url" content="https://beyond-marketing.team-mt.de/" />
+<meta property="og:url" content="https://test-seite-beta.vercel.app/beyond-marketing/" />
 <meta property="og:title" content="KI Marketing Agentur: B2B Beyond Marketing" />
 <meta property="og:description" content="team::mt macht B2B-Marketing KI-fähig – GEO, LinkedIn & Automatisierung. 33 Jahre Erfahrung aus Rosenheim & Köln." />
-<meta property="og:image" content="https://beyond-marketing.team-mt.de/assets/og-image.jpg?v=4" />
+<meta property="og:image" content="https://test-seite-beta.vercel.app/beyond-marketing/assets/og-image.jpg?v=4" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
 <meta property="og:site_name" content="team::mt – Beyond Marketing" />
@@ -21,22 +38,22 @@
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="KI Marketing Agentur: B2B Beyond Marketing" />
 <meta name="twitter:description" content="team::mt macht B2B-Marketing KI-fähig – GEO, LinkedIn & Automatisierung. 33 Jahre Erfahrung." />
-<meta name="twitter:image" content="https://beyond-marketing.team-mt.de/assets/og-image.jpg?v=4" />
+<meta name="twitter:image" content="https://test-seite-beta.vercel.app/beyond-marketing/assets/og-image.jpg?v=4" />
 <!-- Schriften: Poppins (Headline + Text) & EB Garamond (Eyebrow/Subline) — selbst gehostet (DSGVO-konform, keine Google-Anfragen). -->
 <link rel="preload" as="font" type="font/woff2" href="assets/fonts/poppins-700.woff2" crossorigin />
 <link rel="preload" as="font" type="font/woff2" href="assets/fonts/ebgaramond-400i.woff2" crossorigin />
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
 <link rel="icon" type="image/png" href="assets/favicon.png" />
 <link rel="apple-touch-icon" href="assets/favicon.png" />
-<link rel="canonical" href="https://beyond-marketing.team-mt.de/" />
+<link rel="canonical" href="https://test-seite-beta.vercel.app/beyond-marketing/" />
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "Organization",
   "name": "team::mt gmbh",
   "alternateName": "Beyond Marketing",
-  "url": "https://beyond-marketing.team-mt.de/",
-  "logo": "https://beyond-marketing.team-mt.de/assets/logo.png",
+  "url": "https://test-seite-beta.vercel.app/beyond-marketing/",
+  "logo": "https://test-seite-beta.vercel.app/beyond-marketing/assets/logo.png",
   "foundingDate": "1993",
   "email": "team@team-mt.de",
   "sameAs": [
@@ -710,7 +727,7 @@ opacity:.92 !important; animation:heroFloat 7.5s ease-in-out infinite !important
 <h3 style="font-size:22px;margin:0 0 12px">360° im KI-Marketing</h3>
 <p style="max-width:640px;margin:0 0 32px">Wir denken Marketing ganzheitlich – über Website, LinkedIn, SEO, Content, Monitoring und Automatisierung. Beyond Marketing: Marketing, das mit KI über alle Kanäle hinweg denkt – 360°, immer aktiv, in Echtzeit messbar.</p>
 <p style="margin:0 0 8px"><strong>team::mt gmbh</strong> – KI Marketing Agentur, seit 1993. Büro Rosenheim: Münchener Straße 1, 83022 Rosenheim · Büro Köln: Eupener Str. 159, 50933 Köln · <a href="mailto:team@team-mt.de" style="color:#db0a30">team@team-mt.de</a></p>
-<p style="margin:0 0 8px"><a href="/ansatz" style="color:#46566e">Unser Ansatz</a> · <a href="/leistungen" style="color:#46566e">Leistungen</a> · <a href="/team" style="color:#46566e">Team</a> · <a href="/blog" style="color:#46566e">Blog</a> · <a href="/kontakt" style="color:#46566e">Kontakt</a></p>
+<p style="margin:0 0 8px"><a href="/beyond-marketing/ansatz" style="color:#46566e">Unser Ansatz</a> · <a href="/beyond-marketing/leistungen" style="color:#46566e">Leistungen</a> · <a href="/beyond-marketing/team" style="color:#46566e">Team</a> · <a href="/beyond-marketing/blog" style="color:#46566e">Blog</a> · <a href="/beyond-marketing/kontakt" style="color:#46566e">Kontakt</a></p>
 <p style="margin:0"><a href="impressum.html" style="color:#46566e">Impressum</a> · <a href="datenschutz.html" style="color:#46566e">Datenschutz</a></p>
 </div></div>
   <div id="mglow-light" aria-hidden="true"></div>
@@ -829,6 +846,7 @@ opacity:.92 !important; animation:heroFloat 7.5s ease-in-out infinite !important
   <script defer src="js/legal.js?v=4"></script>
   <!-- GA4 Event-Tracking (Beyond_*) — Klicks, Scroll-Tiefe, Engagement. Läuft über Consent Mode. -->
   <script defer src="js/tracking.js?v=2"></script>
+<script defer src="js/livestream-popup.js?v=2"></script>
   <!-- Google Ads Conversion (Header-CTA „Gespräch anfragen") — nach legal.js/tracking.js -->
   <script defer src="js/ads-conversion.js?v=1"></script>
 </body>
